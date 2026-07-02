@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-  <title>DocBook — عيادة الأسنان</title>
+  <title>DocBook — عيادة القلبية</title>
   <meta name="theme-color" content="#0d9488" />
   
   <script src="https://cdn.tailwindcss.com"></script>
@@ -961,10 +961,7 @@
         <div class="glass-card" style="padding:16px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;flex-wrap:wrap;">
             <h4 style="font-weight:800;font-size:.9rem;color:var(--primary);margin:0;"><i class="fas fa-folder-open" style="margin-left:6px;"></i>أرشيف الزيارات <span id="chartVisitsCount" style="font-size:.72rem;color:var(--text-muted);font-weight:600;"></span></h4>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button onclick="openDentalChart(currentPatientIdForVisit)" style="padding:7px 14px;font-size:.8rem;background:#0ea5e9;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;">🦷 مخطط الأسنان</button>
-              <button onclick="addNewVisit(currentPatientIdForVisit)" class="btn-primary" style="padding:7px 14px;font-size:.8rem;"><i class="fas fa-plus"></i> زيارة جديدة</button>
-            </div>
+            <button onclick="addNewVisit(currentPatientIdForVisit)" class="btn-primary" style="padding:7px 14px;font-size:.8rem;"><i class="fas fa-plus"></i> زيارة جديدة</button>
           </div>
           <div id="chartVisitsList" style="display:flex;flex-direction:column;gap:10px;"></div>
           <div id="modalVisitsTableBody" style="display:none;"></div>
@@ -1097,31 +1094,6 @@
           </div>
           <div></div>
         </div>
-        <div><label class="form-label"><i class="fas fa-heart-pulse" style="color:#d97706;margin-left:4px;"></i> أمراض عامة</label>
-          <div class="inv-grid" id="piGeneralDiseases" style="grid-template-columns:repeat(3,1fr);">
-            <label class="inv-opt"><input type="checkbox" value="سكري"> سكري</label>
-            <label class="inv-opt"><input type="checkbox" value="ضغط"> ضغط</label>
-            <label class="inv-opt"><input type="checkbox" value="قلب"> قلب</label>
-          </div>
-        </div>
-        <div><label class="form-label"><i class="fas fa-hand-dots" style="color:#dc2626;margin-left:4px;"></i> حساسية</label>
-          <div class="inv-grid" id="piAllergyList" style="grid-template-columns:repeat(2,1fr);">
-            <label class="inv-opt"><input type="checkbox" value="بنسلين"> بنسلين</label>
-            <label class="inv-opt"><input type="checkbox" value="مخدر موضعي"> مخدر موضعي</label>
-          </div>
-          <input type="text" id="piAllergyOther" class="form-input" style="margin-top:8px;" placeholder="➕ أخرى...">
-        </div>
-        <div><label class="form-label"><i class="fas fa-pills" style="color:#7c3aed;margin-left:4px;"></i> أدوية مزمنة</label>
-          <input type="text" id="piChronicMeds" class="form-input" placeholder="مثال: أسبرين، ميتفورمين...">
-        </div>
-        <div><label class="form-label">🦷 الحالة الفموية العامة</label>
-          <div class="inv-grid" id="piOralStatus" style="grid-template-columns:repeat(2,1fr);">
-            <label class="inv-opt"><input type="checkbox" value="سليمة"> سليمة</label>
-            <label class="inv-opt"><input type="checkbox" value="تسوس"> تسوس</label>
-            <label class="inv-opt"><input type="checkbox" value="لثة"> لثة</label>
-            <label class="inv-opt"><input type="checkbox" value="عناية ضعيفة"> عناية ضعيفة</label>
-          </div>
-        </div>
         <div><label class="form-label"><i class="fas fa-heart-pulse" style="color:#d97706;margin-left:4px;"></i> أمراض مزمنة</label>
           <textarea id="piChronic" class="form-input" rows="2" style="resize:vertical;" placeholder="مثال: سكري، ضغط، ربو... (افصل بفاصلة)"></textarea>
         </div>
@@ -1157,121 +1129,68 @@
       <div style="flex:1;overflow-y:auto;background:var(--bg);padding:20px;">
         <div class="visit-editor-layout">
 
-          <!-- العمود الرئيسي: كشفية الأسنان -->
+          <!-- العمود الرئيسي: كشفية القلبية الكاملة -->
           <div style="display:flex;flex-direction:column;gap:16px;">
 
-            <!-- 🦷 شريط مخطط الأسنان -->
-            <div class="ve-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:1.5px solid #7dd3fc;">
-              <div style="font-size:.84rem;font-weight:800;color:#0369a1;line-height:1.6;">🦷 حالات الأسنان تُسجَّل من المخطط مباشرة<br><span style="font-weight:600;font-size:.74rem;color:#0284c7;">اضغط على السن → اختر الإجراء → يُسجَّل تلقائياً كحدث</span></div>
-              <button onclick="openDentalChartFromEditor()" style="padding:9px 16px;font-size:.82rem;background:#0ea5e9;color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-weight:800;white-space:nowrap;">فتح المخطط</button>
+            <!-- سبب المراجعة -->
+            <div class="ve-card">
+              <label class="ve-label"><span class="ve-ico" style="background:#fef2f2;border-color:#fecaca;"><i class="fas fa-comment-medical" style="font-size:.7rem;color:#dc2626;"></i></span> سبب المراجعة</label>
+              <textarea id="complaintText" style="width:100%;padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;color:var(--text-primary);font-family:inherit;font-size:.92rem;resize:vertical;line-height:1.7;min-height:56px;box-sizing:border-box;" placeholder="مثال: ألم صدري منذ يومين، خفقان، ضيق نفس..." onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></textarea>
             </div>
 
-            <!-- 🟡 سبب المراجعة -->
+            <!-- العلامات الحيوية -->
             <div class="ve-card">
-              <label class="ve-label"><span class="ve-ico" style="background:#fefce8;border-color:#fde047;"><i class="fas fa-comment-medical" style="font-size:.7rem;color:#ca8a04;"></i></span> سبب المراجعة</label>
-              <div class="inv-grid" id="dnComplaints">
-                <label class="inv-opt"><input type="checkbox" value="ألم سن"> ألم سن</label>
-                <label class="inv-opt"><input type="checkbox" value="تسوس"> تسوس</label>
-                <label class="inv-opt"><input type="checkbox" value="تنظيف"> تنظيف</label>
-                <label class="inv-opt"><input type="checkbox" value="حشوة"> حشوة</label>
-                <label class="inv-opt"><input type="checkbox" value="قلع"> قلع</label>
-                <label class="inv-opt"><input type="checkbox" value="علاج عصب"> علاج عصب</label>
+              <label class="ve-label"><span class="ve-ico" style="background:#fdf2f8;border-color:#fbcfe8;"><i class="fas fa-heart-pulse" style="font-size:.7rem;color:#db2777;"></i></span> العلامات الحيوية</label>
+              <div class="vitals-grid">
+                <div class="vital-box"><span class="vital-lb">الضغط</span><input type="text" id="vitalBp" inputmode="numeric" placeholder="120/80" dir="ltr"></div>
+                <div class="vital-box"><span class="vital-lb">النبض</span><input type="text" id="vitalPulse" inputmode="numeric" placeholder="75" dir="ltr"></div>
+                <div class="vital-box"><span class="vital-lb">الوزن (kg)</span><input type="text" id="vitalWeight" inputmode="decimal" placeholder="80" dir="ltr"></div>
+                <div class="vital-box"><span class="vital-lb">SpO₂ %</span><input type="text" id="vitalSpo2" inputmode="numeric" placeholder="98" dir="ltr"></div>
               </div>
-              <input type="text" id="dnComplaintOther" class="ped-other" placeholder="➕ أخرى...">
             </div>
 
-            <!-- 🔵 الشكوى الحالية -->
+            <!-- الفحص السريري -->
             <div class="ve-card">
-              <label class="ve-label"><span class="ve-ico" style="background:#eff6ff;border-color:#bfdbfe;"><i class="fas fa-face-frown" style="font-size:.7rem;color:#2563eb;"></i></span> الشكوى الحالية</label>
-              <div class="ped-rows">
-                <div class="ped-row"><span class="ped-lb">مكان الألم</span>
-                  <input type="text" id="dnPainLocation" class="ped-mini" style="width:200px;flex:1;text-align:right;" placeholder="مثال: السن 36، الفك السفلي يمين...">
-                </div>
-                <div class="ped-row"><span class="ped-lb">مدة الألم</span>
-                  <input type="text" id="dnPainDuration" class="ped-mini" style="width:140px;" placeholder="مثال: 3 أيام">
-                </div>
-                <div class="ped-row"><span class="ped-lb">شدة الألم</span>
-                  <label class="ped-pill"><input type="radio" name="dn_severity" value="خفيف">خفيف</label>
-                  <label class="ped-pill"><input type="radio" name="dn_severity" value="متوسط">متوسط</label>
-                  <label class="ped-pill danger"><input type="radio" name="dn_severity" value="شديد">شديد</label>
-                </div>
-                <div class="ped-row"><span class="ped-lb">حساسية</span>
-                  <span id="dnSensitivity" style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <label class="inv-opt" style="border-radius:999px;padding:5px 13px;"><input type="checkbox" value="بارد"> بارد</label>
-                    <label class="inv-opt" style="border-radius:999px;padding:5px 13px;"><input type="checkbox" value="ساخن"> ساخن</label>
-                    <label class="inv-opt" style="border-radius:999px;padding:5px 13px;"><input type="checkbox" value="مضغ"> مضغ</label>
-                  </span>
-                </div>
-              </div>
-              <input type="text" id="dnComplaintDetailOther" class="ped-other" placeholder="➕ أخرى...">
+              <label class="ve-label"><span class="ve-ico" style="background:#f0fdfa;border-color:#99f6e4;"><i class="fas fa-stethoscope" style="font-size:.7rem;color:#0d9488;"></i></span> الفحص السريري</label>
+              <textarea id="clinicalExamText" style="width:100%;padding:14px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;color:var(--text-primary);font-family:inherit;font-size:.92rem;resize:vertical;line-height:1.75;min-height:90px;box-sizing:border-box;" placeholder="ماذا وجدت أثناء الفحص؟ (إصغاء قلب ورئة، وذمات، نفخات...)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></textarea>
             </div>
 
-            <!-- 🦷 الفحص السريري -->
+            <!-- الاستقصاءات -->
             <div class="ve-card">
-              <label class="ve-label"><span class="ve-ico" style="background:#f0fdfa;border-color:#99f6e4;"><i class="fas fa-tooth" style="font-size:.7rem;color:#0d9488;"></i></span> الفحص السريري</label>
-              <div class="ped-rows">
-                <div class="ped-row"><span class="ped-lb">اللثة</span>
-                  <label class="ped-pill"><input type="radio" name="dn_gums" value="طبيعية">طبيعية</label>
-                  <label class="ped-pill"><input type="radio" name="dn_gums" value="التهاب">التهاب</label>
-                  <label class="ped-pill danger"><input type="radio" name="dn_gums" value="نزف">نزف</label>
-                </div>
-                <div class="ped-row"><span class="ped-lb">التسوس</span>
-                  <label class="ped-pill"><input type="radio" name="dn_caries" value="لا">لا</label>
-                  <label class="ped-pill"><input type="radio" name="dn_caries" value="نعم">نعم <span style="font-weight:600;opacity:.7;">(يُحدد من المخطط)</span></label>
-                </div>
-                <div class="ped-row"><span class="ped-lb">رائحة الفم</span>
-                  <label class="ped-pill"><input type="radio" name="dn_breath" value="طبيعية">طبيعية</label>
-                  <label class="ped-pill"><input type="radio" name="dn_breath" value="غير طبيعية">غير طبيعية</label>
-                </div>
-                <div class="ped-row"><span class="ped-lb">حركة الأسنان</span>
-                  <label class="ped-pill"><input type="radio" name="dn_mobility" value="لا">لا</label>
-                  <label class="ped-pill danger"><input type="radio" name="dn_mobility" value="نعم">نعم</label>
-                </div>
-              </div>
-              <input type="text" id="dnExamOther" class="ped-other" placeholder="➕ أخرى...">
-            </div>
-
-            <!-- 🧪 الاستقصاءات -->
-            <div class="ve-card">
-              <label class="ve-label"><span class="ve-ico" style="background:#eff6ff;border-color:#bfdbfe;"><i class="fas fa-x-ray" style="font-size:.7rem;color:#2563eb;"></i></span> الاستقصاءات</label>
+              <label class="ve-label"><span class="ve-ico" style="background:#eff6ff;border-color:#bfdbfe;"><i class="fas fa-magnifying-glass-chart" style="font-size:.7rem;color:#2563eb;"></i></span> الاستقصاءات</label>
               <div class="inv-grid" id="invGrid">
-                <label class="inv-opt"><input type="checkbox" value="صورة بانوراما (OPG)"> صورة بانوراما (OPG)</label>
-                <label class="inv-opt"><input type="checkbox" value="صورة سنية"> صورة سنية</label>
-                <label class="inv-opt"><input type="checkbox" value="CT فك"> CT فك</label>
-                <label class="inv-opt"><input type="checkbox" value="اختبار حيوية السن"> اختبار حيوية السن</label>
+                <label class="inv-opt"><input type="checkbox" value="ECG (تخطيط قلب)"> ECG (تخطيط قلب)</label>
+                <label class="inv-opt"><input type="checkbox" value="Echo (إيكو قلب)"> Echo (إيكو قلب)</label>
+                <label class="inv-opt"><input type="checkbox" value="Holter"> Holter</label>
+                <label class="inv-opt"><input type="checkbox" value="اختبار جهد"> اختبار جهد</label>
+                <label class="inv-opt"><input type="checkbox" value="تحاليل"> تحاليل</label>
+                <label class="inv-opt"><input type="checkbox" value="صورة صدر"> صورة صدر</label>
+                <label class="inv-opt"><input type="checkbox" value="صورة طبقية (CT)"> صورة طبقية (CT)</label>
+                <label class="inv-opt"><input type="checkbox" value="قثطرة قلبية"> قثطرة قلبية</label>
               </div>
-              <input type="text" id="dnInvOtherName" class="ped-other" placeholder="➕ أخرى (اسم الفحص)...">
-              <textarea id="invNotesText" style="width:100%;margin-top:10px;padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;color:var(--text-primary);font-family:inherit;font-size:.9rem;resize:vertical;line-height:1.7;min-height:60px;box-sizing:border-box;" placeholder="النتيجة..." onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border)'"></textarea>
+              <textarea id="invNotesText" style="width:100%;margin-top:10px;padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;color:var(--text-primary);font-family:inherit;font-size:.9rem;resize:vertical;line-height:1.7;min-height:66px;box-sizing:border-box;" placeholder="النتيجة أو الملاحظات (مثال: EF 55%، تخطيط طبيعي، Troponin سلبي...)" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border)'"></textarea>
             </div>
 
-            <!-- 🔴 التشخيص -->
+            <!-- التشخيص -->
             <div class="ve-card">
-              <label class="ve-label"><span class="ve-ico" style="background:#fef2f2;border-color:#fecaca;"><i class="fas fa-notes-medical" style="font-size:.7rem;color:#dc2626;"></i></span> التشخيص</label>
-              <textarea id="diagnosisText" style="width:100%;padding:14px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;color:var(--text-primary);font-family:inherit;font-size:.92rem;resize:vertical;line-height:1.75;min-height:80px;box-sizing:border-box;" placeholder="اكتب تشخيص الحالة..." onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+              <label class="ve-label"><span class="ve-ico"><i class="fas fa-notes-medical" style="font-size:.7rem;color:var(--primary);"></i></span> التشخيص</label>
+              <textarea id="diagnosisText" style="width:100%;padding:14px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;color:var(--text-primary);font-family:inherit;font-size:.92rem;resize:vertical;line-height:1.75;min-height:90px;box-sizing:border-box;" placeholder="اكتب تشخيص الحالة..." onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></textarea>
             </div>
 
-            <!-- 🟤 العلاج -->
+            <!-- العلاج -->
             <div class="ve-card">
-              <label class="ve-label"><span class="ve-ico" style="background:#fffbeb;border-color:#fde68a;"><i class="fas fa-teeth" style="font-size:.7rem;color:#d97706;"></i></span> العلاج — 🦷 الإجراءات</label>
-              <div class="inv-grid" id="dnProcGrid">
-                <label class="inv-opt"><input type="checkbox" value="حشوة"> حشوة</label>
-                <label class="inv-opt"><input type="checkbox" value="قلع"> قلع</label>
-                <label class="inv-opt"><input type="checkbox" value="علاج عصب"> علاج عصب</label>
-                <label class="inv-opt"><input type="checkbox" value="تنظيف"> تنظيف</label>
-                <label class="inv-opt"><input type="checkbox" value="تاج"> تاج</label>
-              </div>
-              <input type="text" id="dnProcOther" class="ped-other" placeholder="➕ أخرى...">
-              <div style="font-size:.78rem;font-weight:800;color:var(--text-secondary);margin:12px 0 6px;"><i class="fas fa-prescription" style="color:#d97706;margin-left:4px;"></i> 💊 الأدوية</div>
-              <textarea id="prescriptionText" style="width:100%;padding:14px;background:#fffbeb;border:1.5px solid #fde68a;border-radius:12px;color:var(--text-primary);font-family:inherit;font-size:.92rem;resize:vertical;line-height:1.85;min-height:110px;box-sizing:border-box;" placeholder="مثال: مسكنات، مضاد حيوي عند الحاجة... (كل دواء بسطر)" onfocus="this.style.borderColor='#d97706'" onblur="this.style.borderColor='#fde68a'"></textarea>
+              <label class="ve-label"><span class="ve-ico" style="background:#fffbeb;border-color:#fde68a;"><i class="fas fa-prescription" style="font-size:.7rem;color:#d97706;"></i></span> العلاج (الوصفة الطبية)</label>
+              <textarea id="prescriptionText" style="width:100%;padding:14px;background:#fffbeb;border:1.5px solid #fde68a;border-radius:12px;color:var(--text-primary);font-family:inherit;font-size:.92rem;resize:vertical;line-height:1.85;min-height:160px;box-sizing:border-box;" placeholder="اكتب الأدوية والجرعات... (كل دواء بسطر)" onfocus="this.style.borderColor='#d97706'" onblur="this.style.borderColor='#fde68a'"></textarea>
             </div>
 
-            <!-- ⚫ موعد المراجعة -->
+            <!-- التعليمات + موعد المراجعة -->
             <div class="ve-card">
-              <label class="ve-label"><span class="ve-ico"><i class="far fa-calendar-check" style="font-size:.7rem;color:var(--primary);"></i></span> موعد المراجعة</label>
-              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <label class="ve-label"><span class="ve-ico" style="background:#f0fdf4;border-color:#86efac;"><i class="fas fa-clipboard-list" style="font-size:.7rem;color:#16a34a;"></i></span> التعليمات</label>
+              <textarea id="instructionsText" style="width:100%;padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;color:var(--text-primary);font-family:inherit;font-size:.92rem;resize:vertical;line-height:1.75;min-height:66px;box-sizing:border-box;" placeholder="مثال: مراجعة بعد شهر. تخفيف الملح. إيقاف التدخين." onfocus="this.style.borderColor='#16a34a'" onblur="this.style.borderColor='var(--border)'"></textarea>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;">
+                <span style="font-size:.8rem;font-weight:700;color:var(--text-secondary);"><i class="far fa-calendar-check" style="color:#16a34a;margin-left:4px;"></i> موعد المراجعة القادم:</span>
                 <input type="date" id="nextVisitDate" style="padding:8px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;color:var(--text-primary);font-family:inherit;font-size:.88rem;">
               </div>
-              <input type="text" id="dnNextOther" class="ped-other" placeholder="➕ أخرى (مثال: عند الحاجة، بعد أسبوع)...">
             </div>
 
           </div>
@@ -1329,97 +1248,6 @@
     </div>
   </div>
 
-
-  <!-- ========== 🦷 مخطط الأسنان ========== -->
-  <div id="dentalChartModal" class="hidden fixed inset-0 z-[190] modal-overlay" onclick="if(event.target===this)closeDentalChart()">
-    <div class="modal-content" style="max-width:1150px;width:96%;max-height:94vh;display:flex;flex-direction:column;overflow:hidden;border-radius:18px;">
-      <div style="display:flex;align-items:center;gap:12px;padding:13px 20px;border-bottom:1.5px solid var(--border);background:var(--surface);flex-shrink:0;">
-        <span style="width:38px;height:38px;border-radius:10px;background:#0ea5e9;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🦷</span>
-        <div style="flex:1;min-width:0;">
-          <h3 style="font-weight:800;font-size:1rem;color:var(--text-primary);">مخطط الأسنان</h3>
-          <p id="dcPatientName" style="font-size:.75rem;color:var(--text-muted);margin-top:1px;"></p>
-        </div>
-        <button onclick="closeDentalChart()" style="width:34px;height:34px;border-radius:9px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;"><i class="fas fa-times"></i></button>
-      </div>
-      <div style="flex:1;overflow-y:auto;background:var(--bg);padding:16px;">
-        <!-- Summary (derived) -->
-        <div id="dcSummary" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px;"></div>
-        <!-- Legend -->
-        <div id="dcLegend" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px;"></div>
-        <!-- Chart -->
-        <div class="glass-card" style="padding:14px 8px;background:var(--surface);border:1.5px solid var(--border);border-radius:16px;">
-          <div class="dc-jaw-label">الفك العلوي</div>
-          <div class="dc-row-wrap"><span class="dc-side">يمين</span><div class="dc-teeth-row" id="dcUpperRow"></div><span class="dc-side">يسار</span></div>
-          <div class="dc-midline">— خط الوسط —</div>
-          <div class="dc-row-wrap"><span class="dc-side">يمين</span><div class="dc-teeth-row" id="dcLowerRow"></div><span class="dc-side">يسار</span></div>
-          <div class="dc-jaw-label">الفك السفلي</div>
-        </div>
-        <!-- Events log -->
-        <div class="glass-card" style="margin-top:14px;padding:14px 16px;background:var(--surface);border:1.5px solid var(--border);border-radius:16px;">
-          <h4 style="font-weight:800;font-size:.88rem;color:var(--primary);margin:0 0 10px;"><i class="fas fa-clock-rotate-left" style="margin-left:6px;"></i>سجل الأحداث <span id="dcEventsCount" style="font-size:.72rem;color:var(--text-muted);font-weight:600;"></span></h4>
-          <div id="dcEventsList" style="display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 🦷 محرر السن — نموذج الأحداث -->
-  <div id="toothEditModal" class="hidden fixed inset-0 z-[200] modal-overlay" onclick="if(event.target===this)closeToothEditor()">
-    <div class="modal-content" style="max-width:560px;width:94%;max-height:93vh;display:flex;flex-direction:column;overflow:hidden;border-radius:20px;">
-      <div style="display:flex;align-items:center;gap:12px;padding:14px 20px;background:linear-gradient(135deg,#0ea5e9,#0369a1);color:#fff;flex-shrink:0;">
-        <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">🦷</div>
-        <div style="flex:1;min-width:0;">
-          <h3 id="teTitle" style="font-weight:900;font-size:1.02rem;">السن —</h3>
-          <p id="teSub" style="font-size:.72rem;opacity:.85;margin-top:1px;"></p>
-        </div>
-        <span id="teCurrentChip" style="flex-shrink:0;background:rgba(255,255,255,.92);border-radius:999px;padding:5px 13px;font-size:.74rem;font-weight:900;display:flex;align-items:center;gap:6px;"></span>
-        <button onclick="closeToothEditor()" style="width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.2);color:#fff;cursor:pointer;flex-shrink:0;"><i class="fas fa-times"></i></button>
-      </div>
-      <div style="flex:1;overflow-y:auto;padding:16px 20px;background:var(--bg);display:flex;flex-direction:column;gap:14px;">
-
-        <!-- تسجيل حدث جديد -->
-        <div class="te-card">
-          <div class="te-card-title"><i class="fas fa-plus-circle" style="color:#0ea5e9;"></i> تسجيل حدث جديد</div>
-          <div class="te-group-lb">🔍 موجودات</div>
-          <div class="te-events-grid" id="teEventsFindings"></div>
-          <div class="te-group-lb" style="margin-top:10px;">🛠️ معالجات</div>
-          <div class="te-events-grid" id="teEventsTreatments"></div>
-        </div>
-
-        <!-- السطوح -->
-        <div class="te-card" id="teSurfaceCard">
-          <div class="te-card-title"><i class="fas fa-bullseye" style="color:#0ea5e9;"></i> السطوح المصابة <span style="font-weight:600;font-size:.7rem;color:var(--text-muted);">— اضغط على السطح مباشرة</span></div>
-          <div style="display:flex;justify-content:center;"><div id="teBigTooth" style="width:190px;"></div></div>
-          <div id="teSurfaceHint" style="text-align:center;font-size:.7rem;color:var(--text-muted);margin-top:2px;">O سطح المضغ · M أنسي · D وحشي · B شدقي · L لساني</div>
-        </div>
-
-        <!-- التاريخ والملاحظة -->
-        <div class="te-card">
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <div style="display:flex;align-items:center;gap:7px;">
-              <span style="font-size:.76rem;font-weight:800;color:var(--text-secondary);"><i class="far fa-calendar" style="color:#0ea5e9;"></i> تاريخ الحدث</span>
-              <input type="date" id="teDate" style="padding:7px 10px;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;color:var(--text-primary);font-family:inherit;font-size:.82rem;">
-            </div>
-            <input type="text" id="teNote" style="flex:1;min-width:170px;padding:8px 12px;border:1.5px dashed var(--border);border-radius:10px;background:var(--bg);font-family:inherit;font-size:.82rem;color:var(--text-primary);outline:none;" placeholder="ملاحظة (اختياري)...">
-          </div>
-        </div>
-
-        <!-- Timeline -->
-        <div class="te-card">
-          <div class="te-card-title" style="justify-content:space-between;">
-            <span style="display:flex;align-items:center;gap:6px;"><i class="fas fa-clock-rotate-left" style="color:#0ea5e9;"></i> الخط الزمني لهذا السن <span id="teTlCount" style="font-weight:600;font-size:.7rem;color:var(--text-muted);"></span></span>
-            <button onclick="dcClearToothEvents()" style="border:1.5px solid #fecaca;background:#fef2f2;color:#dc2626;border-radius:8px;padding:4px 10px;font-size:.68rem;font-weight:800;cursor:pointer;font-family:inherit;"><i class="fas fa-broom" style="font-size:.6rem;"></i> مسح الكل</button>
-          </div>
-          <div id="teHistory" class="dc-tl"></div>
-        </div>
-
-      </div>
-      <div style="padding:13px 20px;border-top:1.5px solid var(--border);background:var(--surface);flex-shrink:0;display:flex;gap:10px;">
-        <button onclick="closeToothEditor()" class="btn-secondary" style="flex:1;justify-content:center;">إغلاق</button>
-        <button onclick="saveToothEdit()" class="btn-primary" style="flex:2;justify-content:center;padding:11px;background:#0ea5e9;"><i class="fas fa-check"></i> تسجيل الحدث</button>
-      </div>
-    </div>
-  </div>
 
   <!-- ========== DESKTOP FAB SPEED DIAL ========== -->
   <!-- Pills منفصلة بـ fixed -->
