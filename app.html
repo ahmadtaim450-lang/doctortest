@@ -239,6 +239,13 @@
             <span class="rail-nav-label-sub">سجل المرضى والزيارات</span>
           </div>
         </button>
+        <button class="rail-nav-btn sidebar-item" id="sidebarStats" data-tip="الإحصائيات" aria-label="لوحة الإحصائيات">
+          <div class="rail-nav-icon"><i class="fas fa-chart-pie"></i></div>
+          <div class="rail-nav-label">
+            <span class="rail-nav-label-main">الإحصائيات</span>
+            <span class="rail-nav-label-sub">مؤشرات أداء العيادة</span>
+          </div>
+        </button>
         <div class="rail-divider"></div>
         <button class="rail-nav-btn sidebar-item" id="sidebarSettingsBtn" onclick="openSettingsModal()" data-tip="الإعدادات" aria-label="الإعدادات">
           <div class="rail-nav-icon"><i class="fas fa-cog"></i></div>
@@ -596,6 +603,121 @@
         </div>
       </section>
 
+      <!-- ==================== قسم الإحصائيات (يعمل من البيانات المتزامنة — صفر قراءات إضافية) ==================== -->
+      <section id="statsSection" class="hidden">
+
+        <!-- الشريط العلوي -->
+        <div class="dstats-hero">
+          <div class="dstats-hero-top">
+            <div>
+              <h2><i class="fas fa-chart-pie" style="margin-left:8px;opacity:.85;"></i>لوحة الإحصائيات</h2>
+              <p class="dstats-hero-sub">مؤشرات أداء العيادة — تُحسب لحظياً من البيانات المتزامنة</p>
+            </div>
+            <span class="dstats-zero-chip" title="جميع الأرقام تُحسب من البيانات المحمّلة مسبقاً — لا تستهلك أي قراءات إضافية من Firebase"><i class="fas fa-bolt"></i> صفر قراءات إضافية</span>
+          </div>
+          <div class="dstats-range">
+            <button id="dstatsRange7"  onclick="setStatsRange(7)">آخر 7 أيام</button>
+            <button id="dstatsRange30" class="active" onclick="setStatsRange(30)">آخر 30 يوماً</button>
+          </div>
+        </div>
+
+        <!-- بطاقات المؤشرات -->
+        <div class="dstats-kpis">
+          <div class="dstats-kpi c-teal"><div class="dstats-kpi-ic"><i class="fas fa-user-check"></i></div><div class="dstats-kpi-n" id="dkVisited">0</div><div class="dstats-kpi-l">زيارات مكتملة</div></div>
+          <div class="dstats-kpi c-violet"><div class="dstats-kpi-ic"><i class="fas fa-users"></i></div><div class="dstats-kpi-n" id="dkUnique">0</div><div class="dstats-kpi-l">مرضى مختلفون</div></div>
+          <div class="dstats-kpi c-blue"><div class="dstats-kpi-ic"><i class="fas fa-calendar-day"></i></div><div class="dstats-kpi-n" id="dkUpcoming">0</div><div class="dstats-kpi-l">مواعيد قادمة مؤكدة</div></div>
+          <div class="dstats-kpi c-green"><div class="dstats-kpi-ic"><i class="fas fa-gauge-high"></i></div><div class="dstats-kpi-n" id="dkAvg">0</div><div class="dstats-kpi-l">متوسط الزيارات اليومي</div></div>
+          <div class="dstats-kpi c-red"><div class="dstats-kpi-ic"><i class="fas fa-user-xmark"></i></div><div class="dstats-kpi-n" id="dkNoShow">0</div><div class="dstats-kpi-l">لم يحضروا</div></div>
+          <div class="dstats-kpi c-amber"><div class="dstats-kpi-ic"><i class="fas fa-ban"></i></div><div class="dstats-kpi-n" id="dkCancelled">0</div><div class="dstats-kpi-l">مواعيد ملغاة</div></div>
+        </div>
+
+        <!-- شبكة المخططات -->
+        <div class="dstats-grid">
+
+          <div class="dstats-card span2">
+            <div class="dstats-card-head">
+              <span class="dstats-card-title"><i class="fas fa-chart-area"></i> اتجاه الزيارات اليومية</span>
+              <span class="dstats-card-hint" id="dstatsTrendHint">-</span>
+            </div>
+            <div class="dstats-chart-host" id="dstatsTrend"></div>
+          </div>
+
+          <div class="dstats-card">
+            <div class="dstats-card-head">
+              <span class="dstats-card-title"><i class="fas fa-bullseye"></i> نسبة الالتزام بالحضور</span>
+            </div>
+            <div class="dstats-gauge-wrap">
+              <div class="dstats-gauge">
+                <svg viewBox="0 0 150 150" width="150" height="150">
+                  <defs><linearGradient id="dgGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#0f766e"/></linearGradient></defs>
+                  <circle class="dstats-gauge-track" cx="75" cy="75" r="63"/>
+                  <circle class="dstats-gauge-bar" id="dstatsGaugeBar" cx="75" cy="75" r="63"/>
+                </svg>
+                <div class="dstats-gauge-center">
+                  <div class="dstats-gauge-val"><span id="dkAttend">0</span><span>%</span></div>
+                  <div class="dstats-gauge-lbl">من المواعيد حضرت</div>
+                </div>
+              </div>
+              <div class="dstats-gauge-side">
+                <div class="dstats-mini-row"><span class="lbl"><span class="dot" style="background:#16a34a;"></span>حضروا</span><span class="val" id="dmVisited">0</span></div>
+                <div class="dstats-mini-row"><span class="lbl"><span class="dot" style="background:#dc2626;"></span>لم يحضروا</span><span class="val" id="dmNoShow">0</span></div>
+                <div class="dstats-mini-row"><span class="lbl"><span class="dot" style="background:#d97706;"></span>ألغوا</span><span class="val" id="dmCancelled">0</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dstats-card">
+            <div class="dstats-card-head">
+              <span class="dstats-card-title"><i class="fas fa-clock"></i> ساعات الذروة</span>
+              <span class="dstats-card-hint">توزيع المواعيد على ساعات اليوم</span>
+            </div>
+            <div class="dstats-chart-host" id="dstatsHours"></div>
+          </div>
+
+          <div class="dstats-card">
+            <div class="dstats-card-head">
+              <span class="dstats-card-title"><i class="fas fa-teeth"></i> أنواع الزيارات</span>
+            </div>
+            <div class="dstats-donut-wrap">
+              <div class="dstats-donut">
+                <svg viewBox="0 0 140 140" width="140" height="140" id="dstatsDonutSvg"></svg>
+                <div class="dstats-donut-center">
+                  <div class="dstats-donut-total" id="dstatsDonutTotal">0</div>
+                  <div class="dstats-donut-cap">إجمالي الزيارات</div>
+                </div>
+              </div>
+              <div class="dstats-donut-legend" id="dstatsDonutLegend"></div>
+            </div>
+          </div>
+
+          <div class="dstats-card">
+            <div class="dstats-card-head">
+              <span class="dstats-card-title"><i class="fas fa-sun"></i> الفترة الصباحية والمسائية</span>
+            </div>
+            <div class="dstats-split">
+              <div class="dstats-split-bar"><div class="dstats-split-m" id="dstatsSplitM" style="width:50%;"></div><div class="dstats-split-e" id="dstatsSplitE" style="width:50%;"></div></div>
+              <div class="dstats-split-legend">
+                <span>☀️ صباحاً <span class="n" id="dstatsMorning">0</span></span>
+                <span>🌙 مساءً <span class="n" id="dstatsEvening">0</span></span>
+              </div>
+            </div>
+            <div class="dstats-card-head" style="margin:18px 0 10px;">
+              <span class="dstats-card-title"><i class="fas fa-calendar-week"></i> أكثر أيام الأسبوع ازدحاماً</span>
+            </div>
+            <div class="dstats-wday" id="dstatsWeekdays"></div>
+          </div>
+
+          <div class="dstats-card">
+            <div class="dstats-card-head">
+              <span class="dstats-card-title"><i class="fas fa-award"></i> أكثر المرضى تردداً</span>
+              <span class="dstats-card-hint">ضمن الفترة المحددة</span>
+            </div>
+            <div class="dstats-top" id="dstatsTopPatients"></div>
+          </div>
+
+        </div>
+      </section>
+
       <!-- قسم دفتر المرضى -->
       <section id="patientBookSection" class="hidden">
         <div class="glass-card">
@@ -863,6 +985,7 @@
     <div class="bottom-nav-item active" id="mobileHome"><i class="fas fa-house"></i><span>الرئيسية</span></div>
     <div class="bottom-nav-item" id="mobilePatients"><i class="fas fa-address-book"></i><span>المرضى</span></div>
     <div class="bottom-nav-item" id="mobileCalendar"><i class="fas fa-calendar-alt"></i><span>المواعيد</span></div>
+    <div class="bottom-nav-item" id="mobileStats"><i class="fas fa-chart-pie"></i><span>الإحصائيات</span></div>
     <!-- FAB على اليسار -->
     <div class="mob-doc-fab-container">
       <!-- Pills تظهر فوق الزر -->

@@ -1606,6 +1606,215 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       host.innerHTML = head + body;
     }
     
+    // ==================== لوحة الإحصائيات — صفر قراءات إضافية ====================
+    // جميع الحسابات تتم من allRecords (المُزامَنة أصلاً عبر onSnapshot) — لا استعلامات جديدة على Firestore.
+    let statsRangeDays = 30;
+    window.setStatsRange = function(d) {
+      statsRangeDays = d;
+      document.getElementById('dstatsRange7')?.classList.toggle('active', d === 7);
+      document.getElementById('dstatsRange30')?.classList.toggle('active', d === 30);
+      renderDoctorStats(true);
+    };
+
+    function dstatsVisitCat(r) {
+      const t = r.VisitType || '';
+      if (t.indexOf('تحاليل') !== -1 || t.indexOf('تحليل') !== -1) return 'تحاليل';
+      if (t.indexOf('مراجعة') !== -1) return 'مراجعة';
+      if (t.indexOf('كشف') !== -1 || t.indexOf('جديد') !== -1) return 'كشف جديد';
+      return 'أخرى';
+    }
+
+    function renderDoctorStats(animate) {
+      const host = document.getElementById('statsSection');
+      if (!host || host.classList.contains('hidden')) return;
+
+      const tStr = toLocalISODate(today);
+      const startD = new Date(today); startD.setDate(startD.getDate() - (statsRangeDays - 1));
+      const sStr = toLocalISODate(startD);
+      const inRange = (r) => { const d = normalizeDate(r.Date); return d >= sStr && d <= tStr; };
+
+      const recs      = (allRecords || []).filter(inRange);
+      const visited   = recs.filter(r => r.Status === 'Visited');
+      const noShow    = recs.filter(r => r.Status === 'NoShow');
+      const cancelled = recs.filter(r => r.Status === 'Cancelled' || r.Status === 'Rejected');
+      const upcoming  = (allRecords || []).filter(r => r.Status === 'Accepted' && normalizeDate(r.Date) >= tStr);
+
+      const uniq = {}; visited.forEach(r => { uniq[(r.Phone || r.PatientName || r.id)] = 1; });
+      const uniqueCount = Object.keys(uniq).length;
+      const avgDaily = visited.length ? (visited.length / statsRangeDays) : 0;
+      const attended = visited.length, missed = noShow.length;
+      const attendRate = (attended + missed) ? Math.round(attended * 100 / (attended + missed)) : 0;
+
+      // ===== المؤشرات =====
+      const setN = (id, v, suffix) => { const el = document.getElementById(id); if (!el) return; if (animate && typeof animateNumber === 'function' && Number.isInteger(v)) animateNumber(el, v, suffix || ''); else el.textContent = v + (suffix || ''); };
+      setN('dkVisited',   visited.length);
+      setN('dkUnique',    uniqueCount);
+      setN('dkUpcoming',  upcoming.length);
+      const avgEl = document.getElementById('dkAvg'); if (avgEl) avgEl.innerHTML = avgDaily.toFixed(1) + '<span class="dstats-kpi-unit">/يوم</span>';
+      setN('dkNoShow',    noShow.length);
+      setN('dkCancelled', cancelled.length);
+
+      // ===== مقياس الالتزام =====
+      const bar = document.getElementById('dstatsGaugeBar');
+      if (bar) {
+        const C = 2 * Math.PI * 63;
+        bar.style.strokeDasharray = C;
+        if (animate) { bar.style.strokeDashoffset = C; requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.strokeDashoffset = C * (1 - attendRate / 100); })); }
+        else bar.style.strokeDashoffset = C * (1 - attendRate / 100);
+      }
+      setN('dkAttend', attendRate);
+      setN('dmVisited', attended); setN('dmNoShow', missed); setN('dmCancelled', cancelled.length);
+
+      // ===== اتجاه الزيارات اليومية (مخطط مساحي SVG) =====
+      (function() {
+        const el = document.getElementById('dstatsTrend'); if (!el) return;
+        const days = [], counts = [];
+        for (let i = statsRangeDays - 1; i >= 0; i--) {
+          const d = new Date(today); d.setDate(d.getDate() - i);
+          days.push(d); counts.push(0);
+        }
+        const idxOf = {}; days.forEach((d, i) => idxOf[toLocalISODate(d)] = i);
+        visited.forEach(r => { const i = idxOf[normalizeDate(r.Date)]; if (i != null) counts[i]++; });
+        const total = counts.reduce((a, b) => a + b, 0);
+        const hint = document.getElementById('dstatsTrendHint');
+        if (hint) hint.textContent = total + ' زيارة خلال ' + statsRangeDays + ' يوماً';
+
+        const W = 720, H = 190, PAD_L = 28, PAD_R = 10, PAD_T = 14, PAD_B = 26;
+        const iw = W - PAD_L - PAD_R, ih = H - PAD_T - PAD_B;
+        const maxV = Math.max(4, Math.max.apply(null, counts));
+        const X = i => PAD_L + (counts.length === 1 ? iw / 2 : i * iw / (counts.length - 1));
+        const Y = v => PAD_T + ih - (v / maxV) * ih;
+
+        // منحنى ناعم (Catmull-Rom → Bezier)
+        let path = '';
+        counts.forEach((v, i) => {
+          const x = X(i), y = Y(v);
+          if (i === 0) { path = 'M' + x + ',' + y; return; }
+          const x0 = X(Math.max(0, i - 2)), y0 = Y(counts[Math.max(0, i - 2)]);
+          const x1 = X(i - 1), y1 = Y(counts[i - 1]);
+          const x2 = x, y2 = y;
+          const x3 = X(Math.min(counts.length - 1, i + 1)), y3 = Y(counts[Math.min(counts.length - 1, i + 1)]);
+          const c1x = x1 + (x2 - x0) / 6, c1y = y1 + (y2 - y0) / 6;
+          const c2x = x2 - (x3 - x1) / 6, c2y = y2 - (y3 - y1) / 6;
+          path += ' C' + c1x.toFixed(1) + ',' + c1y.toFixed(1) + ' ' + c2x.toFixed(1) + ',' + c2y.toFixed(1) + ' ' + x2.toFixed(1) + ',' + y2.toFixed(1);
+        });
+        const area = path + ' L' + X(counts.length - 1) + ',' + (PAD_T + ih) + ' L' + X(0) + ',' + (PAD_T + ih) + ' Z';
+
+        let grid = '', labels = '';
+        for (let g = 0; g <= 4; g++) {
+          const gv = Math.round(maxV * g / 4), gy = Y(gv);
+          grid += '<line class="dstats-grid-line" x1="' + PAD_L + '" y1="' + gy + '" x2="' + (W - PAD_R) + '" y2="' + gy + '"/>';
+          labels += '<text class="dstats-axis-lbl" x="' + (PAD_L - 6) + '" y="' + (gy + 3) + '" text-anchor="end">' + gv + '</text>';
+        }
+        const step = statsRangeDays > 14 ? 5 : 1;
+        days.forEach((d, i) => {
+          if (i % step === 0 || i === days.length - 1) labels += '<text class="dstats-axis-lbl" x="' + X(i) + '" y="' + (H - 8) + '" text-anchor="middle">' + d.getDate() + '/' + (d.getMonth() + 1) + '</text>';
+        });
+        let dots = '';
+        counts.forEach((v, i) => { if (v > 0) dots += '<circle class="dstats-trend-dot" cx="' + X(i) + '" cy="' + Y(v) + '" r="3"><title>' + v + ' زيارة — ' + d2label(days[i]) + '</title></circle>'; });
+        function d2label(d) { return d.getDate() + '/' + (d.getMonth() + 1); }
+
+        const animCls = (animate && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? ' animate' : '';
+        el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">'
+          + '<defs><linearGradient id="dstatsAreaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--primary-4)" stop-opacity=".35"/><stop offset="100%" stop-color="var(--primary-4)" stop-opacity=".02"/></linearGradient></defs>'
+          + grid
+          + '<path class="dstats-trend-area" d="' + area + '" fill="url(#dstatsAreaGrad)"/>'
+          + '<path class="dstats-trend-line' + animCls + '" style="--len:2200" d="' + path + '"/>'
+          + dots + labels + '</svg>';
+      })();
+
+      // ===== ساعات الذروة =====
+      (function() {
+        const el = document.getElementById('dstatsHours'); if (!el) return;
+        const H0 = 8, H1 = 22, n = H1 - H0 + 1;
+        const counts = Array(n).fill(0);
+        recs.filter(r => r.Status === 'Visited' || r.Status === 'Accepted' || r.Status === 'NoShow').forEach(r => {
+          const h = Math.floor(slotMinutes(slotTimeOf(r)) / 60);
+          if (h >= H0 && h <= H1) counts[h - H0]++;
+        });
+        const maxV = Math.max(1, Math.max.apply(null, counts));
+        const peak = counts.indexOf(Math.max.apply(null, counts));
+        const W = 340, HH = 150, PB = 22, PT = 8, bw = W / n;
+        let bars = '', lbls = '';
+        counts.forEach((v, i) => {
+          const bh = v ? Math.max(3, (v / maxV) * (HH - PB - PT)) : 2;
+          const x = i * bw + bw * 0.18, y = HH - PB - bh;
+          bars += '<rect class="dstats-hourbar' + (v && i === peak ? ' peak' : '') + '" x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + (bw * 0.64).toFixed(1) + '" height="' + bh.toFixed(1) + '" rx="3"><title>' + v + ' موعد — الساعة ' + (H0 + i) + ':00</title></rect>';
+          if ((H0 + i) % 2 === 0) lbls += '<text class="dstats-axis-lbl" x="' + (i * bw + bw / 2) + '" y="' + (HH - 6) + '" text-anchor="middle">' + (H0 + i) + '</text>';
+        });
+        el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + HH + '" preserveAspectRatio="xMidYMid meet">' + bars + lbls + '</svg>';
+      })();
+
+      // ===== أنواع الزيارات (دونات) =====
+      (function() {
+        const svg = document.getElementById('dstatsDonutSvg'), leg = document.getElementById('dstatsDonutLegend');
+        if (!svg || !leg) return;
+        const cats = { 'كشف جديد': 0, 'مراجعة': 0, 'تحاليل': 0, 'أخرى': 0 };
+        visited.forEach(r => cats[dstatsVisitCat(r)]++);
+        const colors = { 'كشف جديد': '#7c3aed', 'مراجعة': '#f59e0b', 'تحاليل': '#2563eb', 'أخرى': '#94a3b8' };
+        const total = visited.length;
+        document.getElementById('dstatsDonutTotal').textContent = total;
+        const R = 54, C = 2 * Math.PI * R;
+        let off = 0, segs = '';
+        Object.keys(cats).forEach(k => {
+          const v = cats[k]; if (!v) return;
+          const frac = v / total, len = frac * C;
+          segs += '<circle class="dstats-donut-seg" cx="70" cy="70" r="' + R + '" stroke="' + colors[k] + '" stroke-dasharray="' + (len - 1.5) + ' ' + (C - len + 1.5) + '" stroke-dashoffset="' + (-off) + '"><title>' + k + ': ' + v + '</title></circle>';
+          off += len;
+        });
+        svg.innerHTML = total ? segs : '<circle class="dstats-donut-seg" cx="70" cy="70" r="' + R + '" stroke="var(--bg)" stroke-dasharray="' + C + ' 0"/>';
+        leg.innerHTML = Object.keys(cats).map(k =>
+          '<div class="dstats-dleg"><span class="r"><span class="sw" style="background:' + colors[k] + ';"></span>' + k + '</span><span class="n">' + cats[k] + (total ? ' <small style="color:var(--text-muted);font-size:.66rem;">(' + Math.round(cats[k] * 100 / total) + '%)</small>' : '') + '</span></div>'
+        ).join('');
+      })();
+
+      // ===== صباحي / مسائي =====
+      (function() {
+        let m = 0, e = 0;
+        visited.forEach(r => { (slotMinutes(slotTimeOf(r)) < 15 * 60) ? m++ : e++; });
+        const tot = Math.max(1, m + e);
+        document.getElementById('dstatsSplitM').style.width = (m * 100 / tot) + '%';
+        document.getElementById('dstatsSplitE').style.width = (e * 100 / tot) + '%';
+        setN('dstatsMorning', m); setN('dstatsEvening', e);
+      })();
+
+      // ===== أيام الأسبوع =====
+      (function() {
+        const el = document.getElementById('dstatsWeekdays'); if (!el) return;
+        const counts = Array(7).fill(0);
+        visited.forEach(r => { const ds = normalizeDate(r.Date); if (!ds) return; const d = parseLocalISODate(ds); if (d && !isNaN(d.getTime())) counts[d.getDay()]++; });
+        const maxV = Math.max(1, Math.max.apply(null, counts));
+        const peak = counts.indexOf(Math.max.apply(null, counts));
+        el.innerHTML = counts.map((v, i) =>
+          '<div class="dstats-wday-row' + (v && i === peak ? ' peak' : '') + '">'
+          + '<span class="dstats-wday-name">' + daysAr[i] + '</span>'
+          + '<div class="dstats-wday-track"><div class="dstats-wday-fill" data-w="' + (v * 100 / maxV) + '"></div></div>'
+          + '<span class="dstats-wday-val">' + v + '</span></div>'
+        ).join('');
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          el.querySelectorAll('.dstats-wday-fill').forEach(f => { f.style.width = f.dataset.w + '%'; });
+        }));
+      })();
+
+      // ===== أكثر المرضى تردداً =====
+      (function() {
+        const el = document.getElementById('dstatsTopPatients'); if (!el) return;
+        const map = {};
+        visited.forEach(r => {
+          const key = r.Phone || r.PatientName || r.id;
+          if (!map[key]) map[key] = { name: r.PatientName || 'مريض', count: 0 };
+          map[key].count++;
+        });
+        const top = Object.values(map).sort((a, b) => b.count - a.count).slice(0, 5);
+        if (!top.length) { el.innerHTML = '<div class="dstats-empty">لا توجد زيارات مكتملة ضمن الفترة المحددة</div>'; return; }
+        el.innerHTML = top.map(p =>
+          '<div class="dstats-top-row"><span class="dstats-top-av">' + escapeHtml((p.name || '؟').trim().charAt(0)) + '</span>'
+          + '<span class="dstats-top-name">' + escapeHtml(p.name) + '</span>'
+          + '<span class="dstats-top-cnt">' + p.count + '<small>زيارة</small></span></div>'
+        ).join('');
+      })();
+    }
+
     window.goToToday = function() {
       currentDate = new Date(today);
       const todayStr = toLocalISODate(today);
@@ -2073,18 +2282,14 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       }
       else if (section === 'stats') { 
         document.getElementById('statsSection').classList.remove('hidden'); 
-        document.querySelectorAll('#statsSection .stat-card').forEach(card => {
-          card.classList.add('fade-in');
-          setTimeout(() => card.classList.remove('fade-in'), 500);
-        });
-        updateStats(true); 
+        renderDoctorStats(true); 
       }
     }
 
     // ==================== تحديث تلقائي كل 5 ثوان ====================
     function autoRefresh() {
       // onSnapshot يُحدّث البيانات تلقائياً — نكتفي برسم الواجهة فقط
-      if (currentSection === 'stats') updateStats(false);
+      if (currentSection === 'stats') renderDoctorStats(false);
       if (currentSection === 'patients') renderPatientBook();
       if (currentSection === 'calendar') { renderCalendar(); if (selectedDayStr) renderAgendaForDay(selectedDayStr); if (typeof renderScheduleGrid === 'function') renderScheduleGrid(); }
       if (currentSection === 'home') renderHomeSection();
