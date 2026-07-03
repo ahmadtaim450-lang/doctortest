@@ -519,7 +519,7 @@
     }
     .density-legend { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.68rem; color: var(--text-muted); margin-top: 4px; }
     .compact-appointment-dot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; border-radius: 50%; }
-    .compact-dot-low { background: #2563eb; }
+    .compact-dot-low { background: #16a34a; }
     .compact-dot-medium { background: #d97706; }
     .compact-dot-high { background: #dc2626; }
 
@@ -1949,9 +1949,9 @@
 /* ===== 🦷 عرض القوس (Odontogram بيضوي) ===== */
 .dc-arch{position:relative;width:min(96%,400px);margin:4px auto;aspect-ratio:380/540;}
 .dc-arch-tooth{position:absolute;cursor:pointer;aspect-ratio:1/1;}
-.dc-arch-tooth svg{display:block;width:100%;height:100%;filter:drop-shadow(0 1.5px 1.5px rgba(15,23,42,.22)) drop-shadow(0 5px 9px rgba(15,23,42,.1));transition:transform .18s cubic-bezier(.34,1.56,.64,1),filter .18s;}
+.dc-arch-tooth svg{display:block;width:100%;height:100%;filter:drop-shadow(0 1.5px 2px rgba(15,23,42,.16));transition:transform .15s;}
 .dc-arch-tooth:hover{z-index:6;}
-.dc-arch-tooth:hover svg{transform:scale(1.18);filter:drop-shadow(0 3px 3px rgba(15,23,42,.26)) drop-shadow(0 10px 16px rgba(15,23,42,.16));}
+.dc-arch-tooth:hover svg{transform:scale(1.14);}
 .dc-arch-num{position:absolute;transform:translate(-50%,-50%);font-family:var(--font-num);font-size:.64rem;font-weight:500;color:var(--text-muted);font-variant-numeric:tabular-nums;pointer-events:none;letter-spacing:-.2px;}
 .dc-arch-side{position:absolute;font-size:.66rem;font-weight:700;color:var(--text-muted);opacity:.6;pointer-events:none;letter-spacing:1px;}
 .dc-arch-mid-h{position:absolute;left:9%;right:9%;top:50%;border-top:1.5px dashed var(--border);pointer-events:none;}

@@ -3958,7 +3958,6 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
           + '<div style="font-size:.68rem;color:var(--text-muted);font-weight:600;margin-bottom:2px;">أمراض مزمنة</div>'
           + '<div style="font-size:.86rem;font-weight:700;word-break:break-word;overflow-wrap:anywhere;line-height:1.7;max-height:160px;overflow-y:auto;color:' + (p.chronicDiseases ? '#d97706' : 'var(--text-muted)') + ';">' + escapeHtml(p.chronicDiseases || 'لا يوجد') + '</div></div>';
       renderChartVisits(pid);
-      if (typeof chartResetBooking === 'function') chartResetBooking(pid);
       document.getElementById('patientDetailsModal').classList.remove('hidden');
       var _rail = document.getElementById('mainRail'); if (_rail) _rail.style.display = 'none';   // إخفاء السايدبار أثناء فتح الإضبارة
     };
@@ -4073,7 +4072,6 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
             + (hasImg ? _visitSection('الأشعة المطلوبة', 'fa-x-ray', v.imagingTest) : '')
             + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">'
               + '<button onclick="openAddNoteModal(\'' + pid + '\',' + i + ')" class="btn-primary" style="padding:6px 12px;font-size:.76rem;"><i class="fas fa-pen"></i> تعديل</button>'
-              + '<button onclick="deleteVisit(\'' + pid + '\',' + i + ')" style="padding:6px 12px;font-size:.76rem;background:#fef2f2;color:#dc2626;border:1.5px solid #fecaca;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;"><i class="fas fa-trash"></i> حذف الزيارة</button>'
               + '<button onclick="printPrescription(\'' + pid + '\',' + i + ')" style="padding:6px 12px;font-size:.76rem;background:var(--primary-light);color:var(--primary);border:1.5px solid var(--border-strong);border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;"><i class="fas fa-print"></i> طباعة الوصفة</button>'
               + '<button onclick="sendVisitToContact(\'' + pid + '\',' + i + ',\'pharmacy\')" style="padding:6px 12px;font-size:.76rem;background:#16a34a;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;"><i class="fab fa-whatsapp"></i> صيدلية</button>'
               + (hasLab ? '<button onclick="sendVisitToContact(\'' + pid + '\',' + i + ',\'lab\')" style="padding:6px 12px;font-size:.76rem;background:#2563eb;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;"><i class="fab fa-whatsapp"></i> مخبر</button>' : '')
@@ -4081,121 +4079,6 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
             + '</div></div></div>';
       }).join('');
     }
-
-    // ===== حذف زيارة (خيار الطبيب) =====
-    window.deleteVisit = function(pid, idx) {
-      var p = allPatients[pid]; if (!p || !p.appointments || !p.appointments[idx]) return;
-      var v = p.appointments[idx];
-      if (!confirm('حذف هذه الزيارة نهائياً؟\n' + (v.visitType || 'زيارة') + ' — ' + formatDateAr(v.date) + '\nلا يمكن التراجع عن هذا الإجراء.')) return;
-      p.appointments.splice(idx, 1);
-      if (typeof p.totalVisits === 'number') p.totalVisits = Math.max(0, p.totalVisits - 1);
-      window._fb.setDoc(window._fb.docRef('patients', pid), p, { merge: true })
-        .then(function(){ showToast('تم حذف الزيارة', 'success'); })
-        .catch(function(e){ showToast('فشل حذف الزيارة', 'error'); console.error(e); });
-      renderChartVisits(pid);
-    };
-
-    // ===== حجز الموعد القادم من الإضبارة (خيار الطبيب) =====
-    var _chartBookData = null;
-    function _cbcRow(icon, label, valId) {
-      return '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:10px 13px;">'
-        + '<span style="font-size:.78rem;font-weight:700;color:var(--text-secondary);"><i class="fas ' + icon + '" style="color:var(--primary);margin-left:6px;"></i>' + label + '</span>'
-        + '<span id="' + valId + '" style="font-size:.84rem;font-weight:800;color:var(--text-primary);"></span></div>';
-    }
-    function chartEnsureBookModal() {
-      if (document.getElementById('chartBookConfirmModal')) return;
-      var m = document.createElement('div');
-      m.id = 'chartBookConfirmModal';
-      m.className = 'hidden fixed inset-0 z-[210] modal-overlay';
-      m.setAttribute('onclick', 'if(event.target===this)closeChartBookConfirm()');
-      m.innerHTML =
-        '<div class="modal-content" style="max-width:400px;width:92%;border-radius:18px;overflow:hidden;">'
-        + '<div style="display:flex;align-items:center;gap:11px;padding:15px 18px;background:linear-gradient(135deg,var(--primary),var(--primary-7,#0f766e));color:#fff;">'
-        +   '<span style="width:40px;height:40px;border-radius:11px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:1.15rem;"><i class="far fa-calendar-check"></i></span>'
-        +   '<div><h3 style="font-weight:900;font-size:1rem;">تأكيد حجز الموعد</h3><p style="font-size:.72rem;opacity:.9;">راجع التفاصيل قبل التأكيد</p></div>'
-        + '</div>'
-        + '<div style="padding:18px;background:var(--bg);display:flex;flex-direction:column;gap:10px;">'
-        +   _cbcRow('fa-user','المريض','cbcName') + _cbcRow('fa-calendar','التاريخ','cbcDate') + _cbcRow('fa-clock','الساعة','cbcSlot')
-        +   '<div style="font-size:.74rem;color:var(--text-muted);text-align:center;margin-top:2px;">سيُضاف الموعد للتقويم والجدول ويُشعَر الطاقم</div>'
-        + '</div>'
-        + '<div style="display:flex;gap:10px;padding:14px 18px;border-top:1.5px solid var(--border);background:var(--surface);">'
-        +   '<button onclick="closeChartBookConfirm()" class="btn-secondary" style="flex:1;justify-content:center;">إلغاء</button>'
-        +   '<button id="cbcConfirmBtn" onclick="chartConfirmBooking()" class="btn-primary" style="flex:2;justify-content:center;"><i class="fas fa-check"></i> تأكيد الحجز</button>'
-        + '</div></div>';
-      document.body.appendChild(m);
-    }
-    function chartResetBooking(pid) {
-      chartEnsureBookModal();
-      var de = document.getElementById('chartNextDate');
-      if (de) { de.min = todayStr; de.value = ''; }
-      var hint = document.getElementById('chartNextHint'); if (hint) hint.textContent = '';
-      var sel = document.getElementById('chartNextSlot'); if (sel) sel.innerHTML = '<option value="">اختر التاريخ أولاً</option>';
-    }
-    function chartFillNextSlots() {
-      var sel = document.getElementById('chartNextSlot'); if (!sel) return;
-      var date = (document.getElementById('chartNextDate') || {}).value || '';
-      var hint = document.getElementById('chartNextHint');
-      if (!date) { sel.innerHTML = '<option value="">اختر التاريخ أولاً</option>'; if (hint) hint.textContent=''; return; }
-      if (typeof isDayClosed === 'function' && isDayClosed(date)) {
-        sel.innerHTML = '<option value="">—</option>';
-        if (hint) hint.innerHTML = '<span style="color:#dc2626;font-weight:700;">هذا اليوم مغلق للحجز</span>'; return;
-      }
-      var taken = (typeof docTakenHoursForDate === 'function') ? docTakenHoursForDate(date) : {};
-      var slots = (typeof docSlots === 'function') ? docSlots() : [];
-      var avail = 0, frag = '';
-      slots.forEach(function(s){ if (taken[s]) return; frag += '<option value="' + s + '">' + ((typeof docFmtHour12==='function')?docFmtHour12(s):s) + '</option>'; avail++; });
-      if (!avail) { sel.innerHTML = '<option value="">لا ساعات متاحة</option>'; if (hint) hint.innerHTML = '<span style="color:#d97706;font-weight:700;">كل ساعات هذا اليوم محجوزة</span>'; }
-      else { sel.innerHTML = frag; if (hint) hint.textContent = avail + ' ساعة متاحة'; }
-    }
-    window.chartNextDateChanged = function(){ chartFillNextSlots(); };
-    window.chartBookNext = function() {
-      var pid = currentPatientIdForVisit, p = allPatients[pid];
-      if (!p) { showToast('لا يوجد مريض محدّد', 'error'); return; }
-      var date = (document.getElementById('chartNextDate') || {}).value;
-      var slot = (document.getElementById('chartNextSlot') || {}).value;
-      if (!date) { showToast('اختر تاريخ الموعد', 'error'); return; }
-      if (typeof isDayClosed === 'function' && isDayClosed(date)) { showToast('هذا اليوم مغلق للحجز', 'error'); return; }
-      if (!slot) { showToast('اختر ساعة متاحة', 'error'); return; }
-      _chartBookData = { pid: pid, date: date, slot: slot };
-      chartEnsureBookModal();
-      document.getElementById('cbcName').textContent = p.name || p.PatientName || '—';
-      document.getElementById('cbcDate').textContent = formatDateAr(date);
-      document.getElementById('cbcSlot').textContent = (typeof docFmtHour12==='function')?docFmtHour12(slot):slot;
-      document.getElementById('chartBookConfirmModal').classList.remove('hidden');
-    };
-    window.closeChartBookConfirm = function(){ var m = document.getElementById('chartBookConfirmModal'); if (m) m.classList.add('hidden'); };
-    window.chartConfirmBooking = function() {
-      if (!_chartBookData) return;
-      var pid = _chartBookData.pid, date = _chartBookData.date, slot = _chartBookData.slot, p = allPatients[pid];
-      if (!p) return;
-      if (typeof docTakenHoursForDate === 'function' && docTakenHoursForDate(date)[slot]) {
-        showToast('هذه الساعة لم تعد متاحة، اختر غيرها', 'error'); closeChartBookConfirm(); chartFillNextSlots(); return;
-      }
-      var btn = document.getElementById('cbcConfirmBtn');
-      function _reset(){ if (btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-check"></i> تأكيد الحجز'; } }
-      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحجز...'; }
-      var appointment = {
-        PatientName: p.name || p.PatientName || '', Phone: p.phone || p.Phone || '',
-        BirthDate: p.birthDate || p.BirthDate || '', Address: p.address || p.Address || '',
-        VisitType: 'مراجعة', Date: date, Slot: slot, Status: 'Accepted',
-        createdAt: new Date().toISOString(), source: 'chart', patientId: pid
-      };
-      window._fb.addDoc(window._fb.col('appointments'), appointment)
-        .then(function(apptRef) {
-          try { var lockId = docSlotLockId(date, slot);
-            window._fb.setDoc(window._fb.docRef('bookedSlots', lockId), { date: date, time: slot, apptId: apptRef.id, status: 'booked', source: 'chart', createdAt: window._fb.serverTimestamp() }).catch(function(){});
-          } catch (e) {}
-          try {
-            window._fb.addDoc(window._fb.col('alerts'), { type:'newManualAppt', direction:'doctorToNurse', message:'موعد مراجعة: ' + (p.name || p.PatientName || ''), read:false, createdAt: window._fb.serverTimestamp(), expireAt: new Date(Date.now() + 30*24*60*60*1000) })
-              .then(function(alertRef){ try { new BroadcastChannel('nurseAlerts').postMessage({ type:'newManualAppt', direction:'doctorToNurse', message:'موعد مراجعة: ' + (p.name||''), ts: Date.now(), docId: alertRef.id }); } catch(e){} }).catch(function(){});
-          } catch (e) {}
-          closeChartBookConfirm(); _reset();
-          showToast('تم حجز الموعد بنجاح ✓', 'success');
-          var de = document.getElementById('chartNextDate'); if (de) de.value = '';
-          chartFillNextSlots(); _chartBookData = null;
-        })
-        .catch(function(e){ showToast('فشل الحجز: ' + (e.code || e.message), 'error'); console.error(e); _reset(); });
-    };
 
     // ===== إضافة زيارة جديدة يدوياً =====
     window.addNewVisit = function(pid) {
@@ -4479,88 +4362,6 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
         + '</div>';
     }
     // ===== عرض القوس (Odontogram بيضوي) — نفس محرك الاشتقاق، توزيع هندسي على قطع ناقص =====
-    // لوحة تدرّجات 3D لكل حالة: l=لمعة، b=أساس، d=عمق، rim=إطار
-    var DC_ARCH_TINTS = {
-      healthy:   { l: '#ffffff', b: '#f5f8fb', d: '#dde5ee', rim: '#c8d2de' },
-      caries:    { l: '#ffe4e4', b: '#fca5a5', d: '#f87171', rim: '#ef4444' },
-      sec_caries:{ l: '#fecaca', b: '#f87171', d: '#ef4444', rim: '#b91c1c' },
-      filled:    { l: '#fff6d9', b: '#fde68a', d: '#fbbf24', rim: '#f59e0b' },
-      root:      { l: '#f4fbe0', b: '#d9f99d', d: '#bef264', rim: '#65a30d' },
-      crowned:   { l: '#eaf3fe', b: '#bfdbfe', d: '#93c5fd', rim: '#3b82f6' },
-      bridge:    { l: '#f1edfe', b: '#ddd6fe', d: '#c4b5fd', rim: '#7c3aed' },
-      implant:   { l: '#e3fbf1', b: '#a7f3d0', d: '#6ee7b7', rim: '#059669' },
-      impacted:  { l: '#f2eefe', b: '#ddd6fe', d: '#c4b5fd', rim: '#8b5cf6' },
-      extracted: { l: '#ffffff', b: '#f4f7fa', d: '#e2e9f1', rim: '#94a3b8' },
-      missing:   { l: '#fbfdff', b: '#f8fafc', d: '#eef2f7', rim: '#cbd5e1' }
-    };
-    // عرض كل سن (% من الحاوية) محسوب من طول قوس القطع الناقص الفعلي → أسنان متلاصقة
-    var DC_ARCH_W = [0, 8.1, 8.2, 8.9, 9.8, 10.6, 11.3, 12.0, 12.3];
-    // سن واقعي بمنظور إطباقي (occlusal) — تدرّج قبة الميناء + أخاديد + لمعة + ظل عمق
-    function dcArchToothSVG(fdi, d) {
-      var pos = fdi % 10;
-      var prim = dcPrimaryStatus(d);
-      var t = DC_ARCH_TINTS[prim] || DC_ARCH_TINTS.healthy;
-      var uid = 'at' + fdi;
-      // شكل الجسم حسب نوع السن (كلها تملأ ~90% من الصندوق أفقياً ليتراصّ الصف)
-      var shapeEl;
-      if (pos >= 6)      shapeEl = function(a){ return '<rect x="3" y="7" width="54" height="46" rx="15" ' + a + '/>'; };          // طاحن
-      else if (pos >= 4) shapeEl = function(a){ return '<ellipse cx="30" cy="30" rx="27" ry="24" ' + a + '/>'; };                   // ضاحك
-      else if (pos === 3) shapeEl = function(a){ return '<ellipse cx="30" cy="30" rx="27" ry="22.5" ' + a + '/>'; };                // ناب
-      else               shapeEl = function(a){ return '<ellipse cx="30" cy="30" rx="27" ry="20.5" ' + a + '/>'; };                 // قاطع
-      var s = '<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">';
-      // مفقود: شبح متقطّع
-      if (d.existence === 'missing') {
-        return s + shapeEl('fill="#f8fafc" fill-opacity="0.5" stroke="#cbd5e1" stroke-width="1.6" stroke-dasharray="3,3.5"')
-          + '<line x1="21" y1="30" x2="39" y2="30" stroke="#cbd5e1" stroke-width="2.6" stroke-linecap="round"/></svg>';
-      }
-      s += '<defs><radialGradient id="' + uid + '" cx="38%" cy="26%" r="82%">'
-        + '<stop offset="0%" stop-color="' + t.l + '"/>'
-        + '<stop offset="55%" stop-color="' + t.b + '"/>'
-        + '<stop offset="100%" stop-color="' + t.d + '"/></radialGradient>'
-        + '<clipPath id="' + uid + 'c">' + shapeEl('') + '</clipPath></defs>';
-      s += shapeEl('fill="url(#' + uid + ')"');
-      var inner = '';
-      // ظل عمق سفلي داخل الشكل (إحساس القبة)
-      inner += '<ellipse cx="30" cy="54" rx="31" ry="15" fill="' + t.d + '" opacity="0.45"/>';
-      // الأخاديد التشريحية
-      var g = 'stroke="' + t.rim + '" stroke-opacity="0.38" stroke-width="2" stroke-linecap="round" fill="none"';
-      if (pos >= 6) { // طاحن: أخدود H + وسائد الحدبات
-        inner += '<path d="M20,15 Q17.5,30 20,45" ' + g + '/><path d="M40,15 Q42.5,30 40,45" ' + g + '/><path d="M20,30 Q30,33.5 40,30" ' + g + '/>'
-          + '<circle cx="17.5" cy="17" r="4.5" fill="#fff" opacity="0.26"/><circle cx="42.5" cy="17" r="4.5" fill="#fff" opacity="0.2"/>'
-          + '<circle cx="17.5" cy="43" r="4.5" fill="#fff" opacity="0.12"/><circle cx="42.5" cy="43" r="4.5" fill="#fff" opacity="0.1"/>';
-      } else if (pos >= 4) { // ضاحك: أخدود مركزي
-        inner += '<path d="M19,30 Q30,26.5 41,30" ' + g + '/><circle cx="24" cy="20" r="5" fill="#fff" opacity="0.22"/>';
-      } else if (pos === 3) { // ناب: حدّ متوسط
-        inner += '<path d="M30,17 Q32.5,30 30,43" ' + g + '/>';
-      } else { // قاطع: الحافة القاطعة
-        inner += '<path d="M13,31 Q30,35 47,31" stroke="' + t.rim + '" stroke-opacity="0.3" stroke-width="1.8" stroke-linecap="round" fill="none"/>';
-      }
-      // بقع الأسطح المصابة (كل سطح بلونه) — تخفت تحت التغطية
-      var map = dcSurfaceMap(fdi);
-      var posMap = { top: [30,12], bottom: [30,48], left: [10,30], right: [50,30], center: [30,30] };
-      Object.keys(posMap).forEach(function(k) {
-        var stt = d.surfaces[map[k]];
-        if (!stt) return;
-        var c = DC_SURF_COLORS[stt] || '#ef4444';
-        inner += '<circle cx="' + posMap[k][0] + '" cy="' + posMap[k][1] + '" r="6.5" fill="' + c + '" opacity="' + (d.coverage ? 0.25 : 0.5) + '"/>';
-      });
-      // لمعة زجاجية علوية
-      inner += '<ellipse cx="21" cy="15" rx="11" ry="5.5" fill="#fff" opacity="0.42" transform="rotate(-18 21 15)"/>'
-        + '<circle cx="35" cy="11" r="2.2" fill="#fff" opacity="0.5"/>';
-      s += '<g clip-path="url(#' + uid + 'c)">' + inner + '</g>';
-      // الإطار: متقطّع إذا منطمر
-      var rimDash = (d.impacted && prim !== 'impacted') || prim === 'impacted' ? ' stroke-dasharray="4,3"' : '';
-      s += shapeEl('fill="none" stroke="' + t.rim + '" stroke-opacity="' + (prim === 'healthy' ? 0.5 : 0.8) + '" stroke-width="1.6"' + rimDash);
-      // خط التاج الداخلي للتغطية (تاج/جسر)
-      if (d.coverage) s += shapeEl('fill="none" stroke="' + t.rim + '" stroke-opacity="0.5" stroke-width="1" transform="translate(30,30) scale(0.85) translate(-30,-30)" stroke-dasharray="3,2"');
-      // زرعة: برغي
-      if (d.existence === 'implant') s += '<g stroke="#059669" stroke-width="1.9" stroke-linecap="round" opacity="0.9"><circle cx="30" cy="30" r="8.5" fill="#e3fbf1"/><line x1="30" y1="24" x2="30" y2="36"/><line x1="25" y1="27" x2="35" y2="27"/><line x1="25" y1="33" x2="35" y2="33"/></g>';
-      // مقلوع: ✕
-      if (d.existence === 'extracted') s += '<line x1="19" y1="19" x2="41" y2="41" stroke="#94a3b8" stroke-width="4" stroke-linecap="round" opacity="0.85"/><line x1="41" y1="19" x2="19" y2="41" stroke="#94a3b8" stroke-width="4" stroke-linecap="round" opacity="0.85"/>';
-      // علاج عصب (والسن غير مصبوغ بالكامل به): نقطة مركزية
-      if (d.endo && prim !== 'root') s += '<circle cx="30" cy="30" r="3.6" fill="#65a30d" stroke="#fff" stroke-width="1.4"/>';
-      return s + '</svg>';
-    }
     function dcArchHTML(p) {
       var rx = 36.5, ry = 42;        // نصف قطر مسار الأسنان (% من الحاوية)
       var rxN = 47.2, ryN = 48.6;    // نصف قطر أرقام FDI (خارج القوس)
@@ -4579,13 +4380,13 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
           var rot = (q.jaw === 'up') ? q.sx * deg : -q.sx * deg;  // ميلان السن مع مماس القوس
           var d = dcDerive(p, fdi);
           var pos = fdi % 10;
-          var w = DC_ARCH_W[pos];
+          var w = pos >= 6 ? 13 : (pos >= 4 ? 11.6 : (pos === 3 ? 11 : 10.4));
           var prim = dcPrimaryStatus(d);
           var alertTxt = d.alerts.map(function(al){ return al.label; }).join('، ');
           var title = dcToothName(fdi) + ' — ' + DC_STATUS[prim].label + (alertTxt ? ' ⚠ ' + alertTxt : '');
           h += '<div class="dc-arch-tooth" style="width:' + w + '%;left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%;transform:translate(-50%,-50%) rotate(' + rot.toFixed(1) + 'deg);" onclick="openToothEditor(' + fdi + ')" title="' + escapeHtml(title) + '">'
             + (d.alerts.length ? '<span class="dc-alert"></span>' : '')
-            + dcArchToothSVG(fdi, d) + '</div>';
+            + dcToothSVG(fdi, d, false, true) + '</div>';
           var numStyle = (prim !== 'healthy') ? 'color:' + DC_STATUS[prim].bd + ';font-weight:700;' : '';
           h += '<div class="dc-arch-num" style="left:' + xN.toFixed(2) + '%;top:' + yN.toFixed(2) + '%;' + numStyle + '">' + fdi + '</div>';
         });
