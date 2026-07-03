@@ -957,6 +957,23 @@
           <div id="chartInfoGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;"></div>
         </div>
 
+        <!-- حجز الموعد القادم -->
+        <div class="glass-card" style="padding:16px;margin-top:14px;">
+          <h4 style="font-weight:800;font-size:.9rem;color:var(--primary);margin:0 0 12px;"><i class="far fa-calendar-plus" style="margin-left:6px;"></i>حجز الموعد القادم</h4>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <label style="font-size:.72rem;font-weight:700;color:var(--text-secondary);">التاريخ</label>
+              <input type="date" id="chartNextDate" onchange="chartNextDateChanged()" style="padding:8px 10px;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;color:var(--text-primary);font-family:inherit;font-size:.84rem;">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <label style="font-size:.72rem;font-weight:700;color:var(--text-secondary);">الساعة</label>
+              <select id="chartNextSlot" style="padding:8px 10px;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;color:var(--text-primary);font-family:inherit;font-size:.84rem;min-width:130px;"><option value="">اختر التاريخ أولاً</option></select>
+            </div>
+            <button onclick="chartBookNext()" class="btn-primary" style="padding:9px 16px;font-size:.82rem;"><i class="far fa-calendar-check"></i> احجز الموعد</button>
+          </div>
+          <div id="chartNextHint" style="font-size:.74rem;color:var(--text-muted);margin-top:9px;"></div>
+        </div>
+
         <!-- أرشيف الزيارات -->
         <div class="glass-card" style="padding:16px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;flex-wrap:wrap;">

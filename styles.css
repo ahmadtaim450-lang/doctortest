@@ -519,7 +519,7 @@
     }
     .density-legend { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.68rem; color: var(--text-muted); margin-top: 4px; }
     .compact-appointment-dot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; border-radius: 50%; }
-    .compact-dot-low { background: #16a34a; }
+    .compact-dot-low { background: #2563eb; }
     .compact-dot-medium { background: #d97706; }
     .compact-dot-high { background: #dc2626; }
 

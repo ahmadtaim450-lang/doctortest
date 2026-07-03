@@ -3958,6 +3958,7 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
           + '<div style="font-size:.68rem;color:var(--text-muted);font-weight:600;margin-bottom:2px;">أمراض مزمنة</div>'
           + '<div style="font-size:.86rem;font-weight:700;word-break:break-word;overflow-wrap:anywhere;line-height:1.7;max-height:160px;overflow-y:auto;color:' + (p.chronicDiseases ? '#d97706' : 'var(--text-muted)') + ';">' + escapeHtml(p.chronicDiseases || 'لا يوجد') + '</div></div>';
       renderChartVisits(pid);
+      if (typeof chartResetBooking === 'function') chartResetBooking(pid);
       document.getElementById('patientDetailsModal').classList.remove('hidden');
       var _rail = document.getElementById('mainRail'); if (_rail) _rail.style.display = 'none';   // إخفاء السايدبار أثناء فتح الإضبارة
     };
@@ -4072,6 +4073,7 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
             + (hasImg ? _visitSection('الأشعة المطلوبة', 'fa-x-ray', v.imagingTest) : '')
             + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">'
               + '<button onclick="openAddNoteModal(\'' + pid + '\',' + i + ')" class="btn-primary" style="padding:6px 12px;font-size:.76rem;"><i class="fas fa-pen"></i> تعديل</button>'
+              + '<button onclick="deleteVisit(\'' + pid + '\',' + i + ')" style="padding:6px 12px;font-size:.76rem;background:#fef2f2;color:#dc2626;border:1.5px solid #fecaca;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;"><i class="fas fa-trash"></i> حذف الزيارة</button>'
               + '<button onclick="printPrescription(\'' + pid + '\',' + i + ')" style="padding:6px 12px;font-size:.76rem;background:var(--primary-light);color:var(--primary);border:1.5px solid var(--border-strong);border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;"><i class="fas fa-print"></i> طباعة الوصفة</button>'
               + '<button onclick="sendVisitToContact(\'' + pid + '\',' + i + ',\'pharmacy\')" style="padding:6px 12px;font-size:.76rem;background:#16a34a;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;"><i class="fab fa-whatsapp"></i> صيدلية</button>'
               + (hasLab ? '<button onclick="sendVisitToContact(\'' + pid + '\',' + i + ',\'lab\')" style="padding:6px 12px;font-size:.76rem;background:#2563eb;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;"><i class="fab fa-whatsapp"></i> مخبر</button>' : '')
@@ -4079,6 +4081,121 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
             + '</div></div></div>';
       }).join('');
     }
+
+    // ===== حذف زيارة (خيار الطبيب) =====
+    window.deleteVisit = function(pid, idx) {
+      var p = allPatients[pid]; if (!p || !p.appointments || !p.appointments[idx]) return;
+      var v = p.appointments[idx];
+      if (!confirm('حذف هذه الزيارة نهائياً؟\n' + (v.visitType || 'زيارة') + ' — ' + formatDateAr(v.date) + '\nلا يمكن التراجع عن هذا الإجراء.')) return;
+      p.appointments.splice(idx, 1);
+      if (typeof p.totalVisits === 'number') p.totalVisits = Math.max(0, p.totalVisits - 1);
+      window._fb.setDoc(window._fb.docRef('patients', pid), p, { merge: true })
+        .then(function(){ showToast('تم حذف الزيارة', 'success'); })
+        .catch(function(e){ showToast('فشل حذف الزيارة', 'error'); console.error(e); });
+      renderChartVisits(pid);
+    };
+
+    // ===== حجز الموعد القادم من الإضبارة (خيار الطبيب) =====
+    var _chartBookData = null;
+    function _cbcRow(icon, label, valId) {
+      return '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:10px 13px;">'
+        + '<span style="font-size:.78rem;font-weight:700;color:var(--text-secondary);"><i class="fas ' + icon + '" style="color:var(--primary);margin-left:6px;"></i>' + label + '</span>'
+        + '<span id="' + valId + '" style="font-size:.84rem;font-weight:800;color:var(--text-primary);"></span></div>';
+    }
+    function chartEnsureBookModal() {
+      if (document.getElementById('chartBookConfirmModal')) return;
+      var m = document.createElement('div');
+      m.id = 'chartBookConfirmModal';
+      m.className = 'hidden fixed inset-0 z-[210] modal-overlay';
+      m.setAttribute('onclick', 'if(event.target===this)closeChartBookConfirm()');
+      m.innerHTML =
+        '<div class="modal-content" style="max-width:400px;width:92%;border-radius:18px;overflow:hidden;">'
+        + '<div style="display:flex;align-items:center;gap:11px;padding:15px 18px;background:linear-gradient(135deg,var(--primary),var(--primary-7,#0f766e));color:#fff;">'
+        +   '<span style="width:40px;height:40px;border-radius:11px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:1.15rem;"><i class="far fa-calendar-check"></i></span>'
+        +   '<div><h3 style="font-weight:900;font-size:1rem;">تأكيد حجز الموعد</h3><p style="font-size:.72rem;opacity:.9;">راجع التفاصيل قبل التأكيد</p></div>'
+        + '</div>'
+        + '<div style="padding:18px;background:var(--bg);display:flex;flex-direction:column;gap:10px;">'
+        +   _cbcRow('fa-user','المريض','cbcName') + _cbcRow('fa-calendar','التاريخ','cbcDate') + _cbcRow('fa-clock','الساعة','cbcSlot')
+        +   '<div style="font-size:.74rem;color:var(--text-muted);text-align:center;margin-top:2px;">سيُضاف الموعد للتقويم والجدول ويُشعَر الطاقم</div>'
+        + '</div>'
+        + '<div style="display:flex;gap:10px;padding:14px 18px;border-top:1.5px solid var(--border);background:var(--surface);">'
+        +   '<button onclick="closeChartBookConfirm()" class="btn-secondary" style="flex:1;justify-content:center;">إلغاء</button>'
+        +   '<button id="cbcConfirmBtn" onclick="chartConfirmBooking()" class="btn-primary" style="flex:2;justify-content:center;"><i class="fas fa-check"></i> تأكيد الحجز</button>'
+        + '</div></div>';
+      document.body.appendChild(m);
+    }
+    function chartResetBooking(pid) {
+      chartEnsureBookModal();
+      var de = document.getElementById('chartNextDate');
+      if (de) { de.min = todayStr; de.value = ''; }
+      var hint = document.getElementById('chartNextHint'); if (hint) hint.textContent = '';
+      var sel = document.getElementById('chartNextSlot'); if (sel) sel.innerHTML = '<option value="">اختر التاريخ أولاً</option>';
+    }
+    function chartFillNextSlots() {
+      var sel = document.getElementById('chartNextSlot'); if (!sel) return;
+      var date = (document.getElementById('chartNextDate') || {}).value || '';
+      var hint = document.getElementById('chartNextHint');
+      if (!date) { sel.innerHTML = '<option value="">اختر التاريخ أولاً</option>'; if (hint) hint.textContent=''; return; }
+      if (typeof isDayClosed === 'function' && isDayClosed(date)) {
+        sel.innerHTML = '<option value="">—</option>';
+        if (hint) hint.innerHTML = '<span style="color:#dc2626;font-weight:700;">هذا اليوم مغلق للحجز</span>'; return;
+      }
+      var taken = (typeof docTakenHoursForDate === 'function') ? docTakenHoursForDate(date) : {};
+      var slots = (typeof docSlots === 'function') ? docSlots() : [];
+      var avail = 0, frag = '';
+      slots.forEach(function(s){ if (taken[s]) return; frag += '<option value="' + s + '">' + ((typeof docFmtHour12==='function')?docFmtHour12(s):s) + '</option>'; avail++; });
+      if (!avail) { sel.innerHTML = '<option value="">لا ساعات متاحة</option>'; if (hint) hint.innerHTML = '<span style="color:#d97706;font-weight:700;">كل ساعات هذا اليوم محجوزة</span>'; }
+      else { sel.innerHTML = frag; if (hint) hint.textContent = avail + ' ساعة متاحة'; }
+    }
+    window.chartNextDateChanged = function(){ chartFillNextSlots(); };
+    window.chartBookNext = function() {
+      var pid = currentPatientIdForVisit, p = allPatients[pid];
+      if (!p) { showToast('لا يوجد مريض محدّد', 'error'); return; }
+      var date = (document.getElementById('chartNextDate') || {}).value;
+      var slot = (document.getElementById('chartNextSlot') || {}).value;
+      if (!date) { showToast('اختر تاريخ الموعد', 'error'); return; }
+      if (typeof isDayClosed === 'function' && isDayClosed(date)) { showToast('هذا اليوم مغلق للحجز', 'error'); return; }
+      if (!slot) { showToast('اختر ساعة متاحة', 'error'); return; }
+      _chartBookData = { pid: pid, date: date, slot: slot };
+      chartEnsureBookModal();
+      document.getElementById('cbcName').textContent = p.name || p.PatientName || '—';
+      document.getElementById('cbcDate').textContent = formatDateAr(date);
+      document.getElementById('cbcSlot').textContent = (typeof docFmtHour12==='function')?docFmtHour12(slot):slot;
+      document.getElementById('chartBookConfirmModal').classList.remove('hidden');
+    };
+    window.closeChartBookConfirm = function(){ var m = document.getElementById('chartBookConfirmModal'); if (m) m.classList.add('hidden'); };
+    window.chartConfirmBooking = function() {
+      if (!_chartBookData) return;
+      var pid = _chartBookData.pid, date = _chartBookData.date, slot = _chartBookData.slot, p = allPatients[pid];
+      if (!p) return;
+      if (typeof docTakenHoursForDate === 'function' && docTakenHoursForDate(date)[slot]) {
+        showToast('هذه الساعة لم تعد متاحة، اختر غيرها', 'error'); closeChartBookConfirm(); chartFillNextSlots(); return;
+      }
+      var btn = document.getElementById('cbcConfirmBtn');
+      function _reset(){ if (btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-check"></i> تأكيد الحجز'; } }
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحجز...'; }
+      var appointment = {
+        PatientName: p.name || p.PatientName || '', Phone: p.phone || p.Phone || '',
+        BirthDate: p.birthDate || p.BirthDate || '', Address: p.address || p.Address || '',
+        VisitType: 'مراجعة', Date: date, Slot: slot, Status: 'Accepted',
+        createdAt: new Date().toISOString(), source: 'chart', patientId: pid
+      };
+      window._fb.addDoc(window._fb.col('appointments'), appointment)
+        .then(function(apptRef) {
+          try { var lockId = docSlotLockId(date, slot);
+            window._fb.setDoc(window._fb.docRef('bookedSlots', lockId), { date: date, time: slot, apptId: apptRef.id, status: 'booked', source: 'chart', createdAt: window._fb.serverTimestamp() }).catch(function(){});
+          } catch (e) {}
+          try {
+            window._fb.addDoc(window._fb.col('alerts'), { type:'newManualAppt', direction:'doctorToNurse', message:'موعد مراجعة: ' + (p.name || p.PatientName || ''), read:false, createdAt: window._fb.serverTimestamp(), expireAt: new Date(Date.now() + 30*24*60*60*1000) })
+              .then(function(alertRef){ try { new BroadcastChannel('nurseAlerts').postMessage({ type:'newManualAppt', direction:'doctorToNurse', message:'موعد مراجعة: ' + (p.name||''), ts: Date.now(), docId: alertRef.id }); } catch(e){} }).catch(function(){});
+          } catch (e) {}
+          closeChartBookConfirm(); _reset();
+          showToast('تم حجز الموعد بنجاح ✓', 'success');
+          var de = document.getElementById('chartNextDate'); if (de) de.value = '';
+          chartFillNextSlots(); _chartBookData = null;
+        })
+        .catch(function(e){ showToast('فشل الحجز: ' + (e.code || e.message), 'error'); console.error(e); _reset(); });
+    };
 
     // ===== إضافة زيارة جديدة يدوياً =====
     window.addNewVisit = function(pid) {
