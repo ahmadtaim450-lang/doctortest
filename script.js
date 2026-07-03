@@ -4362,6 +4362,88 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
         + '</div>';
     }
     // ===== عرض القوس (Odontogram بيضوي) — نفس محرك الاشتقاق، توزيع هندسي على قطع ناقص =====
+    // لوحة تدرّجات 3D لكل حالة: l=لمعة، b=أساس، d=عمق، rim=إطار
+    var DC_ARCH_TINTS = {
+      healthy:   { l: '#ffffff', b: '#f5f8fb', d: '#dde5ee', rim: '#c8d2de' },
+      caries:    { l: '#ffe4e4', b: '#fca5a5', d: '#f87171', rim: '#ef4444' },
+      sec_caries:{ l: '#fecaca', b: '#f87171', d: '#ef4444', rim: '#b91c1c' },
+      filled:    { l: '#fff6d9', b: '#fde68a', d: '#fbbf24', rim: '#f59e0b' },
+      root:      { l: '#f4fbe0', b: '#d9f99d', d: '#bef264', rim: '#65a30d' },
+      crowned:   { l: '#eaf3fe', b: '#bfdbfe', d: '#93c5fd', rim: '#3b82f6' },
+      bridge:    { l: '#f1edfe', b: '#ddd6fe', d: '#c4b5fd', rim: '#7c3aed' },
+      implant:   { l: '#e3fbf1', b: '#a7f3d0', d: '#6ee7b7', rim: '#059669' },
+      impacted:  { l: '#f2eefe', b: '#ddd6fe', d: '#c4b5fd', rim: '#8b5cf6' },
+      extracted: { l: '#ffffff', b: '#f4f7fa', d: '#e2e9f1', rim: '#94a3b8' },
+      missing:   { l: '#fbfdff', b: '#f8fafc', d: '#eef2f7', rim: '#cbd5e1' }
+    };
+    // عرض كل سن (% من الحاوية) محسوب من طول قوس القطع الناقص الفعلي → أسنان متلاصقة
+    var DC_ARCH_W = [0, 8.1, 8.2, 8.9, 9.8, 10.6, 11.3, 12.0, 12.3];
+    // سن واقعي بمنظور إطباقي (occlusal) — تدرّج قبة الميناء + أخاديد + لمعة + ظل عمق
+    function dcArchToothSVG(fdi, d) {
+      var pos = fdi % 10;
+      var prim = dcPrimaryStatus(d);
+      var t = DC_ARCH_TINTS[prim] || DC_ARCH_TINTS.healthy;
+      var uid = 'at' + fdi;
+      // شكل الجسم حسب نوع السن (كلها تملأ ~90% من الصندوق أفقياً ليتراصّ الصف)
+      var shapeEl;
+      if (pos >= 6)      shapeEl = function(a){ return '<rect x="3" y="7" width="54" height="46" rx="15" ' + a + '/>'; };          // طاحن
+      else if (pos >= 4) shapeEl = function(a){ return '<ellipse cx="30" cy="30" rx="27" ry="24" ' + a + '/>'; };                   // ضاحك
+      else if (pos === 3) shapeEl = function(a){ return '<ellipse cx="30" cy="30" rx="27" ry="22.5" ' + a + '/>'; };                // ناب
+      else               shapeEl = function(a){ return '<ellipse cx="30" cy="30" rx="27" ry="20.5" ' + a + '/>'; };                 // قاطع
+      var s = '<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">';
+      // مفقود: شبح متقطّع
+      if (d.existence === 'missing') {
+        return s + shapeEl('fill="#f8fafc" fill-opacity="0.5" stroke="#cbd5e1" stroke-width="1.6" stroke-dasharray="3,3.5"')
+          + '<line x1="21" y1="30" x2="39" y2="30" stroke="#cbd5e1" stroke-width="2.6" stroke-linecap="round"/></svg>';
+      }
+      s += '<defs><radialGradient id="' + uid + '" cx="38%" cy="26%" r="82%">'
+        + '<stop offset="0%" stop-color="' + t.l + '"/>'
+        + '<stop offset="55%" stop-color="' + t.b + '"/>'
+        + '<stop offset="100%" stop-color="' + t.d + '"/></radialGradient>'
+        + '<clipPath id="' + uid + 'c">' + shapeEl('') + '</clipPath></defs>';
+      s += shapeEl('fill="url(#' + uid + ')"');
+      var inner = '';
+      // ظل عمق سفلي داخل الشكل (إحساس القبة)
+      inner += '<ellipse cx="30" cy="54" rx="31" ry="15" fill="' + t.d + '" opacity="0.45"/>';
+      // الأخاديد التشريحية
+      var g = 'stroke="' + t.rim + '" stroke-opacity="0.38" stroke-width="2" stroke-linecap="round" fill="none"';
+      if (pos >= 6) { // طاحن: أخدود H + وسائد الحدبات
+        inner += '<path d="M20,15 Q17.5,30 20,45" ' + g + '/><path d="M40,15 Q42.5,30 40,45" ' + g + '/><path d="M20,30 Q30,33.5 40,30" ' + g + '/>'
+          + '<circle cx="17.5" cy="17" r="4.5" fill="#fff" opacity="0.26"/><circle cx="42.5" cy="17" r="4.5" fill="#fff" opacity="0.2"/>'
+          + '<circle cx="17.5" cy="43" r="4.5" fill="#fff" opacity="0.12"/><circle cx="42.5" cy="43" r="4.5" fill="#fff" opacity="0.1"/>';
+      } else if (pos >= 4) { // ضاحك: أخدود مركزي
+        inner += '<path d="M19,30 Q30,26.5 41,30" ' + g + '/><circle cx="24" cy="20" r="5" fill="#fff" opacity="0.22"/>';
+      } else if (pos === 3) { // ناب: حدّ متوسط
+        inner += '<path d="M30,17 Q32.5,30 30,43" ' + g + '/>';
+      } else { // قاطع: الحافة القاطعة
+        inner += '<path d="M13,31 Q30,35 47,31" stroke="' + t.rim + '" stroke-opacity="0.3" stroke-width="1.8" stroke-linecap="round" fill="none"/>';
+      }
+      // بقع الأسطح المصابة (كل سطح بلونه) — تخفت تحت التغطية
+      var map = dcSurfaceMap(fdi);
+      var posMap = { top: [30,12], bottom: [30,48], left: [10,30], right: [50,30], center: [30,30] };
+      Object.keys(posMap).forEach(function(k) {
+        var stt = d.surfaces[map[k]];
+        if (!stt) return;
+        var c = DC_SURF_COLORS[stt] || '#ef4444';
+        inner += '<circle cx="' + posMap[k][0] + '" cy="' + posMap[k][1] + '" r="6.5" fill="' + c + '" opacity="' + (d.coverage ? 0.25 : 0.5) + '"/>';
+      });
+      // لمعة زجاجية علوية
+      inner += '<ellipse cx="21" cy="15" rx="11" ry="5.5" fill="#fff" opacity="0.42" transform="rotate(-18 21 15)"/>'
+        + '<circle cx="35" cy="11" r="2.2" fill="#fff" opacity="0.5"/>';
+      s += '<g clip-path="url(#' + uid + 'c)">' + inner + '</g>';
+      // الإطار: متقطّع إذا منطمر
+      var rimDash = (d.impacted && prim !== 'impacted') || prim === 'impacted' ? ' stroke-dasharray="4,3"' : '';
+      s += shapeEl('fill="none" stroke="' + t.rim + '" stroke-opacity="' + (prim === 'healthy' ? 0.5 : 0.8) + '" stroke-width="1.6"' + rimDash);
+      // خط التاج الداخلي للتغطية (تاج/جسر)
+      if (d.coverage) s += shapeEl('fill="none" stroke="' + t.rim + '" stroke-opacity="0.5" stroke-width="1" transform="translate(30,30) scale(0.85) translate(-30,-30)" stroke-dasharray="3,2"');
+      // زرعة: برغي
+      if (d.existence === 'implant') s += '<g stroke="#059669" stroke-width="1.9" stroke-linecap="round" opacity="0.9"><circle cx="30" cy="30" r="8.5" fill="#e3fbf1"/><line x1="30" y1="24" x2="30" y2="36"/><line x1="25" y1="27" x2="35" y2="27"/><line x1="25" y1="33" x2="35" y2="33"/></g>';
+      // مقلوع: ✕
+      if (d.existence === 'extracted') s += '<line x1="19" y1="19" x2="41" y2="41" stroke="#94a3b8" stroke-width="4" stroke-linecap="round" opacity="0.85"/><line x1="41" y1="19" x2="19" y2="41" stroke="#94a3b8" stroke-width="4" stroke-linecap="round" opacity="0.85"/>';
+      // علاج عصب (والسن غير مصبوغ بالكامل به): نقطة مركزية
+      if (d.endo && prim !== 'root') s += '<circle cx="30" cy="30" r="3.6" fill="#65a30d" stroke="#fff" stroke-width="1.4"/>';
+      return s + '</svg>';
+    }
     function dcArchHTML(p) {
       var rx = 36.5, ry = 42;        // نصف قطر مسار الأسنان (% من الحاوية)
       var rxN = 47.2, ryN = 48.6;    // نصف قطر أرقام FDI (خارج القوس)
@@ -4380,13 +4462,13 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
           var rot = (q.jaw === 'up') ? q.sx * deg : -q.sx * deg;  // ميلان السن مع مماس القوس
           var d = dcDerive(p, fdi);
           var pos = fdi % 10;
-          var w = pos >= 6 ? 13 : (pos >= 4 ? 11.6 : (pos === 3 ? 11 : 10.4));
+          var w = DC_ARCH_W[pos];
           var prim = dcPrimaryStatus(d);
           var alertTxt = d.alerts.map(function(al){ return al.label; }).join('، ');
           var title = dcToothName(fdi) + ' — ' + DC_STATUS[prim].label + (alertTxt ? ' ⚠ ' + alertTxt : '');
           h += '<div class="dc-arch-tooth" style="width:' + w + '%;left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%;transform:translate(-50%,-50%) rotate(' + rot.toFixed(1) + 'deg);" onclick="openToothEditor(' + fdi + ')" title="' + escapeHtml(title) + '">'
             + (d.alerts.length ? '<span class="dc-alert"></span>' : '')
-            + dcToothSVG(fdi, d, false, true) + '</div>';
+            + dcArchToothSVG(fdi, d) + '</div>';
           var numStyle = (prim !== 'healthy') ? 'color:' + DC_STATUS[prim].bd + ';font-weight:700;' : '';
           h += '<div class="dc-arch-num" style="left:' + xN.toFixed(2) + '%;top:' + yN.toFixed(2) + '%;' + numStyle + '">' + fdi + '</div>';
         });
