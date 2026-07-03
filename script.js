@@ -1500,13 +1500,13 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       return M[a.getMonth()] + ' ' + a.getDate() + ' - ' + M[b.getMonth()] + ' ' + b.getDate() + ', ' + b.getFullYear();
     }
     function schedStatusColor(r) {
-      if (r.Status === 'NoShow')  return { bg:'#fef2f2', bd:'#f87171', tx:'#b91c1c' };
-      if (r.Status === 'Visited') return { bg:'#f0fdf4', bd:'#4ade80', tx:'#15803d' };
+      if (r.Status === 'NoShow')  return { bg:'#fee2e2', bd:'#ef4444', tx:'#991b1b' };
+      if (r.Status === 'Visited') return { bg:'#dcfce7', bd:'#16a34a', tx:'#166534' };
       const t = r.VisitType || '';
-      if (t.indexOf('تحاليل') !== -1 || t.indexOf('تحليل') !== -1) return { bg:'#eff6ff', bd:'#60a5fa', tx:'#1d4ed8' };
-      if (t.indexOf('مراجعة') !== -1)                              return { bg:'#fffbeb', bd:'#fbbf24', tx:'#b45309' };
-      if (t.indexOf('كشف') !== -1 || t.indexOf('جديد') !== -1)     return { bg:'#f5f3ff', bd:'#a78bfa', tx:'#6d28d9' };
-      return { bg:'#f8fafc', bd:'#cbd5e1', tx:'#475569' };
+      if (t.indexOf('تحاليل') !== -1 || t.indexOf('تحليل') !== -1) return { bg:'#dbeafe', bd:'#2563eb', tx:'#1e40af' };
+      if (t.indexOf('مراجعة') !== -1)                              return { bg:'#fef9c3', bd:'#f59e0b', tx:'#92400e' };
+      if (t.indexOf('كشف') !== -1 || t.indexOf('جديد') !== -1)     return { bg:'#ede9fe', bd:'#7c3aed', tx:'#5b21b6' };
+      return { bg:'#f1f5f9', bd:'#94a3b8', tx:'#475569' };
     }
     window.setScheduleView = function(v) {
       scheduleView = v;
@@ -3425,7 +3425,7 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
         var backup = {
           _meta: {
             app: 'DocBook',
-            clinicType: (typeof CLINIC_TYPE !== 'undefined' ? CLINIC_TYPE : 'dental'),
+            clinicType: (typeof CLINIC_TYPE !== 'undefined' ? CLINIC_TYPE : 'cardio'),
             schema: 1,
             exportedAt: new Date().toISOString(),
             exportedBy: (fb.auth.currentUser && fb.auth.currentUser.email) || null
@@ -3950,10 +3950,6 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
         + chip('زمرة الدم', p.bloodType ? escapeHtml(p.bloodType) : '-', p.bloodType ? '#dc2626' : 'var(--text-muted)')
         + chip('العنوان', escapeHtml(p.address || '-'))
         + chip('إجمالي الزيارات', String(p.totalVisits || (p.appointments ? p.appointments.length : 0)))
-        + chip('🩺 أمراض عامة', (p.generalDiseases && p.generalDiseases.length) ? escapeHtml(p.generalDiseases.join('، ')) : 'لا يوجد', (p.generalDiseases && p.generalDiseases.length) ? '#d97706' : 'var(--text-muted)')
-        + chip('⚠️ حساسية', (function(){ var a = (p.dentalAllergies || []).slice(); if (p.allergyOther) a.push(p.allergyOther); return a.length ? escapeHtml(a.join('، ')) : 'لا يوجد'; })(), ((p.dentalAllergies && p.dentalAllergies.length) || p.allergyOther) ? '#dc2626' : 'var(--text-muted)')
-        + chip('💊 أدوية مزمنة', p.chronicMeds ? escapeHtml(p.chronicMeds) : '-', p.chronicMeds ? '#7c3aed' : 'var(--text-muted)')
-        + chip('🦷 الحالة الفموية', (p.oralStatus && p.oralStatus.length) ? escapeHtml(p.oralStatus.join('، ')) : '-', (p.oralStatus && p.oralStatus.length) ? '#0ea5e9' : 'var(--text-muted)')
         + '<div style="grid-column:1/-1;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:8px 11px;min-width:0;">'
           + '<div style="font-size:.68rem;color:var(--text-muted);font-weight:600;margin-bottom:2px;">أمراض مزمنة</div>'
           + '<div style="font-size:.86rem;font-weight:700;word-break:break-word;overflow-wrap:anywhere;line-height:1.7;max-height:160px;overflow-y:auto;color:' + (p.chronicDiseases ? '#d97706' : 'var(--text-muted)') + ';">' + escapeHtml(p.chronicDiseases || 'لا يوجد') + '</div></div>';
@@ -3968,68 +3964,28 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
         + '<div style="font-size:.84rem;color:var(--text-primary);line-height:1.7;white-space:pre-wrap;word-break:break-word;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;">'
         + (text ? escapeHtml(text) : '<span style="color:var(--text-muted)">— لا يوجد —</span>') + '</div></div>';
     }
-    function _dnSecTitle(title, icon) {
-      return '<div style="font-size:.76rem;font-weight:800;color:var(--primary);margin-bottom:5px;"><i class="fas ' + icon + '" style="margin-left:5px;"></i>' + title + '</div>';
-    }
-    function _dnChipsRow(title, icon, arr, other, bg, bd, tx) {
-      arr = arr || []; other = (other || '').trim();
-      if (!arr.length && !other) return '';
-      var all = arr.slice(); if (other) all.push(other);
-      return '<div style="margin-top:12px;">' + _dnSecTitle(title, icon)
-        + '<div style="display:flex;gap:7px;flex-wrap:wrap;">'
-        + all.map(function(t){ return '<span style="background:' + bg + ';border:1.5px solid ' + bd + ';border-radius:9px;padding:5px 11px;font-size:.78rem;font-weight:800;color:' + tx + ';">' + escapeHtml(t) + '</span>'; }).join('')
+    function _vitalsRow(vit) {
+      if (!vit) return '';
+      var items = [];
+      if (vit.bp)     items.push(['الضغط', vit.bp]);
+      if (vit.pulse)  items.push(['النبض', vit.pulse]);
+      if (vit.weight) items.push(['الوزن', vit.weight + ' kg']);
+      if (vit.spo2)   items.push(['SpO₂', vit.spo2 + '%']);
+      if (!items.length) return '';
+      return '<div style="margin-top:12px;"><div style="font-size:.76rem;font-weight:800;color:var(--primary);margin-bottom:5px;"><i class="fas fa-heart-pulse" style="margin-left:5px;"></i>العلامات الحيوية</div>'
+        + '<div style="display:flex;gap:8px;flex-wrap:wrap;">'
+        + items.map(function(it){ return '<span style="background:#fdf2f8;border:1.5px solid #fbcfe8;border-radius:9px;padding:5px 11px;font-size:.8rem;font-weight:800;color:#be185d;"><span style="font-weight:600;color:#9d174d;opacity:.75;">' + it[0] + ':</span> <span dir="ltr">' + escapeHtml(String(it[1])) + '</span></span>'; }).join('')
         + '</div></div>';
     }
-    function _dnKvRows(title, icon, pairs, other) {
-      pairs = (pairs || []).filter(function(p){ return p[1] && String(p[1]).trim(); });
-      other = (other || '').trim();
-      if (!pairs.length && !other) return '';
-      var html = '<div style="margin-top:12px;">' + _dnSecTitle(title, icon)
-        + '<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:4px;">'
-        + pairs.map(function(p){
-            var danger = p[2] === true;
-            return '<div style="font-size:.83rem;line-height:1.6;"><span style="font-weight:800;color:var(--text-secondary);">' + p[0] + ':</span> <span style="font-weight:700;color:' + (danger ? '#dc2626' : 'var(--text-primary)') + ';">' + escapeHtml(String(p[1])) + '</span></div>';
-          }).join('');
-      if (other) html += '<div style="font-size:.83rem;line-height:1.6;"><span style="font-weight:800;color:var(--text-secondary);">أخرى:</span> <span style="white-space:pre-wrap;">' + escapeHtml(other) + '</span></div>';
-      return html + '</div></div>';
-    }
-    function _dnInvestigationsRow(v) {
-      var inv = (v && v.investigations || []).slice();
-      if (v && v.invOtherName && v.invOtherName.trim()) inv.push(v.invOtherName.trim());
+    function _investigationsRow(v) {
+      var inv = (v && v.investigations) || [];
       var notes = (v && v.investigationNotes || '').trim();
       if (!inv.length && !notes) return '';
-      var html = '<div style="margin-top:12px;">' + _dnSecTitle('الاستقصاءات', 'fa-x-ray');
+      var html = '<div style="margin-top:12px;"><div style="font-size:.76rem;font-weight:800;color:var(--primary);margin-bottom:5px;"><i class="fas fa-magnifying-glass-chart" style="margin-left:5px;"></i>الاستقصاءات</div>';
       if (inv.length) html += '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:' + (notes ? '8px' : '0') + ';">'
         + inv.map(function(t){ return '<span style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:9px;padding:5px 11px;font-size:.78rem;font-weight:800;color:#1d4ed8;"><i class="fas fa-check" style="font-size:.65rem;margin-left:4px;"></i>' + escapeHtml(t) + '</span>'; }).join('') + '</div>';
-      if (notes) html += '<div style="font-size:.84rem;color:var(--text-primary);line-height:1.7;white-space:pre-wrap;word-break:break-word;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;"><span style="font-weight:800;color:var(--text-secondary);">النتيجة:</span> ' + escapeHtml(notes) + '</div>';
+      if (notes) html += '<div style="font-size:.84rem;color:var(--text-primary);line-height:1.7;white-space:pre-wrap;word-break:break-word;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;">' + escapeHtml(notes) + '</div>';
       return html + '</div>';
-    }
-    function _dnNextVisitRow(v) {
-      if (!v) return '';
-      var t = '';
-      if (v.nextVisit) t = formatDateAr(v.nextVisit);
-      else if (v.nextVisitOther) t = v.nextVisitOther;
-      if (!t) return '';
-      if (v.nextVisit && v.nextVisitOther) t += ' — ' + v.nextVisitOther;
-      return '<div style="margin-top:12px;display:flex;align-items:center;gap:8px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:9px 12px;font-size:.84rem;font-weight:800;color:#15803d;"><i class="far fa-calendar-check"></i> موعد المراجعة: ' + escapeHtml(t) + '</div>';
-    }
-    function _dnEventsRowForDate(p, dateStr) {
-      if (!p || !dateStr) return '';
-      var evs = (p.dentalEvents || []).filter(function(e){ return e.date === dateStr; });
-      if (!evs.length) return '';
-      return '<div style="margin-top:12px;">' + _dnSecTitle('🦷 أحداث الأسنان في هذا اليوم', 'fa-tooth')
-        + '<div style="display:flex;flex-direction:column;gap:5px;">'
-        + evs.map(function(e){
-            var def = (typeof dcEventDef === 'function') ? dcEventDef(e) : { label: e.action || 'حدث', color: '#0ea5e9' };
-            return '<div style="display:flex;align-items:center;gap:8px;background:#f0f9ff;border:1.5px solid #7dd3fc;border-radius:9px;padding:6px 10px;font-size:.8rem;">'
-              + '<span style="background:#0ea5e9;color:#fff;border-radius:6px;padding:2px 8px;font-weight:900;font-size:.74rem;flex-shrink:0;">' + escapeHtml(String(e.tooth)) + '</span>'
-              + '<span style="width:9px;height:9px;border-radius:3px;background:' + def.color + ';flex-shrink:0;"></span>'
-              + '<span style="font-weight:800;color:#0369a1;">' + escapeHtml(def.label) + '</span>'
-              + (e.surfaces && e.surfaces.length ? '<span style="font-size:.68rem;font-weight:800;color:' + def.color + ';">[' + e.surfaces.join('،') + ']</span>' : '')
-              + (e.note ? '<span style="color:var(--text-muted);font-size:.74rem;">— ' + escapeHtml(e.note) + '</span>' : '')
-              + '</div>';
-          }).join('')
-        + '</div></div>';
     }
     function renderChartVisits(pid) {
       var p = allPatients[pid]; var box = document.getElementById('chartVisitsList');
@@ -4043,31 +3999,19 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
         var hasImg = !!(v.imagingTest && v.imagingTest.trim());
         return '<div class="chart-visit" style="border:1.5px solid var(--border);border-right:4px solid ' + c.bd + ';border-radius:12px;overflow:hidden;background:var(--surface);">'
           + '<div onclick="var b=this.parentNode.querySelector(\'.chart-visit-body\');var o=b.style.display===\'none\';b.style.display=o?\'block\':\'none\';this.querySelector(\'.chart-visit-caret\').style.transform=o?\'rotate(180deg)\':\'\';" oncontextmenu="event.preventDefault();openAddNoteModal(\'' + pid + '\',' + i + ');return false;" title="كليك يمين: فتح التعديل" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;cursor:pointer;">'
-            + '<div style="min-width:0;"><div style="font-weight:800;font-size:.88rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml((function(){ var c = (v.complaints || []).slice(); if (v.complaintOther && v.complaintOther.trim()) c.push(v.complaintOther.trim()); return c.length ? c.join(' + ') : (v.visitType || 'زيارة'); })()) + '</div>'
+            + '<div style="min-width:0;"><div style="font-weight:800;font-size:.88rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml((v.complaint && v.complaint.trim()) ? v.complaint : (v.visitType || 'زيارة')) + '</div>'
             + '<div style="font-size:.74rem;color:var(--text-muted);margin-top:2px;"><i class="far fa-calendar" style="font-size:.68rem;"></i> ' + formatDateAr(v.date) + ' · ' + slotTimeOf(v) + '</div></div>'
             + '<i class="fas fa-chevron-down chart-visit-caret" style="color:var(--text-muted);transition:transform .2s;flex-shrink:0;"></i>'
           + '</div>'
           + '<div class="chart-visit-body" style="display:none;padding:0 13px 13px;border-top:1px dashed var(--border);">'
-            + _dnChipsRow('سبب المراجعة', 'fa-comment-medical', v.complaints, v.complaintOther, '#fefce8', '#fde047', '#a16207')
-            + _dnKvRows('الشكوى الحالية', 'fa-face-frown', [
-                ['مكان الألم', v.painLocation],
-                ['مدة الألم', v.painDuration],
-                ['شدة الألم', v.severity, v.severity === 'شديد'],
-                ['حساسية', (v.sensitivity || []).join('، ')]
-              ], v.complaintDetailOther)
-            + ((v.clinicalExam && v.clinicalExam.trim()) ? _visitSection('الفحص السريري (نص)', 'fa-stethoscope', v.clinicalExam) : '')
-            + (v.exam ? _dnKvRows('الفحص السريري', 'fa-tooth', [
-                ['اللثة', v.exam.gums, v.exam.gums === 'نزف'],
-                ['التسوس', v.exam.caries, v.exam.caries === 'نعم'],
-                ['رائحة الفم', v.exam.breath, v.exam.breath === 'غير طبيعية'],
-                ['حركة الأسنان', v.exam.mobility, v.exam.mobility === 'نعم']
-              ], v.exam.other) : '')
-            + _dnInvestigationsRow(v)
-            + _dnEventsRowForDate(p, v.date)
+            + ((v.complaint && v.complaint.trim()) ? _visitSection('سبب المراجعة', 'fa-comment-medical', v.complaint) : '')
+            + _vitalsRow(v.vitals)
+            + ((v.clinicalExam && v.clinicalExam.trim()) ? _visitSection('الفحص السريري', 'fa-stethoscope', v.clinicalExam) : '')
+            + _investigationsRow(v)
             + _visitSection('التشخيص', 'fa-notes-medical', v.diagnosis || v.note)
-            + _dnChipsRow('🦷 الإجراءات', 'fa-teeth', v.procedures, v.procOther, '#fffbeb', '#fde68a', '#b45309')
-            + _visitSection('💊 الأدوية', 'fa-prescription', v.prescription)
-            + _dnNextVisitRow(v)
+            + _visitSection('العلاج', 'fa-prescription', v.prescription)
+            + ((v.instructions && v.instructions.trim()) ? _visitSection('التعليمات', 'fa-clipboard-list', v.instructions) : '')
+            + ((v.nextVisit) ? '<div style="margin-top:12px;display:flex;align-items:center;gap:8px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:9px 12px;font-size:.84rem;font-weight:800;color:#15803d;"><i class="far fa-calendar-check"></i> موعد المراجعة القادم: ' + formatDateAr(v.nextVisit) + '</div>' : '')
             + (hasLab ? _visitSection('التحاليل المطلوبة', 'fa-vials', v.labTest) : '')
             + (hasImg ? _visitSection('الأشعة المطلوبة', 'fa-x-ray', v.imagingTest) : '')
             + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">'
@@ -4091,418 +4035,27 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       openAddNoteModal(pid, p.appointments.length - 1);
     };
 
-    // ===== 🦷 مخطط الأسنان v2 — نموذج الأحداث (Events) + حالة مشتقة (Derived Status) =====
-    // القاعدة: السن = مجموعة أحداث + حالة حالية تُحسب تلقائياً. المخطط عرض فقط.
-    var DC_STATUS = {
-      healthy:   { label: 'سليم',      bg: '#ffffff', bd: '#cbd5e1' },
-      caries:    { label: 'تسوس',      bg: '#fca5a5', bd: '#ef4444' },
-      filled:    { label: 'حشوة',      bg: '#fde68a', bd: '#f59e0b' },
-      root:      { label: 'علاج عصب',  bg: '#d9f99d', bd: '#65a30d' },
-      crowned:   { label: 'تاج',       bg: '#bfdbfe', bd: '#3b82f6' },
-      bridge:    { label: 'جسر',       bg: '#ddd6fe', bd: '#7c3aed' },
-      implant:   { label: 'زرعة',      bg: '#a7f3d0', bd: '#059669' },
-      extracted: { label: 'مقلوع',     bg: '#e2e8f0', bd: '#94a3b8' }
-    };
-    // أنواع الأحداث: موجودات (findings) ومعالجات (treatments). state = الحالة البصرية التي يفرضها الحدث (null = لا يغيّر اللون)
-    var DC_EVENTS = {
-      caries:     { label: 'تسوس',        color: '#ef4444', kind: 'finding',   state: 'caries' },
-      sec_caries: { label: 'تسوس ثانوي',  color: '#dc2626', kind: 'finding',   state: 'caries' },
-      pain:       { label: 'ألم',          color: '#f97316', kind: 'finding',   state: null },
-      fracture:   { label: 'كسر',          color: '#e11d48', kind: 'finding',   state: null },
-      gum:        { label: 'التهاب لثة',   color: '#f43f5e', kind: 'finding',   state: null },
-      filled:     { label: 'حشوة',         color: '#f59e0b', kind: 'treatment', state: 'filled' },
-      root:       { label: 'علاج عصب',     color: '#65a30d', kind: 'treatment', state: 'root' },
-      crowned:    { label: 'تاج',          color: '#3b82f6', kind: 'treatment', state: 'crowned' },
-      bridge:     { label: 'جسر',          color: '#7c3aed', kind: 'treatment', state: 'bridge' },
-      implant:    { label: 'زرعة',         color: '#059669', kind: 'treatment', state: 'implant' },
-      extracted:  { label: 'قلع',          color: '#64748b', kind: 'treatment', state: 'extracted' },
-      cleaning:   { label: 'تنظيف',        color: '#0ea5e9', kind: 'treatment', state: null },
-      healthy:    { label: 'سليم',         color: '#10b981', kind: 'treatment', state: 'healthy' }
-    };
-    var DC_FINDINGS = ['caries', 'sec_caries', 'pain', 'fracture', 'gum'];
-    var DC_TREATMENTS = ['filled', 'root', 'crowned', 'bridge', 'implant', 'extracted', 'cleaning', 'healthy'];
-    var DC_UPPER = [28,27,26,25,24,23,22,21,11,12,13,14,15,16,17,18];
-    var DC_LOWER = [38,37,36,35,34,33,32,31,41,42,43,44,45,46,47,48];
-    function dcToothName(fdi) {
-      var q = Math.floor(fdi / 10), pos = fdi % 10;
-      var posNames = { 1: 'قاطع مركزي', 2: 'قاطع جانبي', 3: 'ناب', 4: 'ضاحك أول', 5: 'ضاحك ثاني', 6: 'طاحن أول', 7: 'طاحن ثاني', 8: 'طاحن ثالث' };
-      return posNames[pos] + ' ' + (q <= 2 ? 'علوي' : 'سفلي') + ' ' + ((q === 1 || q === 4) ? 'أيمن' : 'أيسر');
-    }
-    function dcRootCount(fdi) {
-      var q = Math.floor(fdi / 10), pos = fdi % 10;
-      if (pos <= 3) return 1;
-      if (pos <= 5) return 2;
-      if (q <= 2) return 3;
-      return pos === 6 ? 2 : 3;
-    }
-    function dcToothEvents(p, fdi) {
-      return (p && p.dentalEvents || []).filter(function(e){ return String(e.tooth) === String(fdi); })
-        .slice().sort(function(a, b) {
-          var d = (a.date || '').localeCompare(b.date || '');
-          return d !== 0 ? d : ((a.ts || 0) - (b.ts || 0));
-        });
-    }
-    // اشتقاق الحالة الحالية تلقائياً من سلسلة الأحداث
-    function dcDerive(p, fdi) {
-      var evs = dcToothEvents(p, fdi);
-      var status = null, surfaces = [], surfColor = null, alert = false, alertLabel = '';
-      evs.forEach(function(e) {
-        var def = DC_EVENTS[e.type];
-        var st = def ? def.state : (e.to && DC_STATUS[e.to] ? e.to : null); // توافق مع الأحداث القديمة (to)
-        if (st) {
-          status = st;
-          if (e.surfaces && e.surfaces.length) { surfaces = e.surfaces.slice(); surfColor = def ? def.color : DC_STATUS[st].bd; }
-          else if (st === 'extracted' || st === 'implant' || st === 'crowned' || st === 'bridge' || st === 'healthy') { surfaces = []; surfColor = null; }
-        }
-        if (def && def.kind === 'finding' && !def.state) { alert = true; alertLabel = def.label; }
-        if (def && def.kind === 'treatment') { alert = false; alertLabel = ''; }
-      });
-      if (status === null) { // توافق مع البيانات القديمة بدون أحداث
-        var t = (p && p.teeth || {})[fdi];
-        if (t && t.status) { status = t.status; surfaces = t.surfaces || []; surfColor = surfaces.length ? DC_STATUS.caries.bd : null; }
-        else status = 'healthy';
-      }
-      return { status: status, surfaces: surfaces, surfColor: surfColor, alert: alert, alertLabel: alertLabel, eventsCount: evs.length };
-    }
-    function dcSurfaceMap(fdi) {
-      var q = Math.floor(fdi / 10);
-      var upper = q <= 2;
-      var mesialOnLeft = (q === 2 || q === 3);
-      return {
-        top:    upper ? 'B' : 'L',
-        bottom: upper ? 'L' : 'B',
-        left:   mesialOnLeft ? 'M' : 'D',
-        right:  mesialOnLeft ? 'D' : 'M',
-        center: (fdi % 10) <= 3 ? 'I' : 'O'
-      };
-    }
-    function dcCrownPath(pos) {
-      if (pos <= 2) return 'M30,8 Q42,10 43,30 Q42,50 30,52 Q18,50 17,30 Q18,10 30,8 Z';
-      if (pos === 3) return 'M30,5 Q45,13 44,30 Q45,47 30,55 Q15,47 16,30 Q15,13 30,5 Z';
-      if (pos <= 5) return 'M30,7 Q48,10 49,30 Q48,50 30,53 Q12,50 11,30 Q12,10 30,7 Z';
-      return 'M14,8 Q30,3 46,8 Q57,13 57,30 Q57,47 46,52 Q30,57 14,52 Q3,47 3,30 Q3,13 14,8 Z';
-    }
-    // بناء السن: viewBox 84×84 — التاج في المنتصف والأحرف M/D/B/L خارج السن دائماً
-    function dcToothSVG(fdi, view, interactive) {
-      // view = { status, surfaces, surfColor }
-      var pos = fdi % 10;
-      var st = DC_STATUS[view.status] || DC_STATUS.healthy;
-      var crown = dcCrownPath(pos);
-      var map = dcSurfaceMap(fdi);
-      var clipId = 'dcClip' + fdi + (interactive ? 'i' : '');
-      var lblFill = interactive ? '#475569' : '#94a3b8';
-      var lblSize = interactive ? '8.5' : '9';
-      // الأحرف خارج السن على الجوانب الأربعة
-      var letters = '<text x="42" y="10" text-anchor="middle" font-size="' + lblSize + '" font-weight="800" fill="' + lblFill + '" style="pointer-events:none;font-family:inherit;">' + map.top + '</text>'
-        + '<text x="42" y="82" text-anchor="middle" font-size="' + lblSize + '" font-weight="800" fill="' + lblFill + '" style="pointer-events:none;font-family:inherit;">' + map.bottom + '</text>'
-        + '<text x="6" y="45" text-anchor="middle" font-size="' + lblSize + '" font-weight="800" fill="' + lblFill + '" style="pointer-events:none;font-family:inherit;">' + map.left + '</text>'
-        + '<text x="78" y="45" text-anchor="middle" font-size="' + lblSize + '" font-weight="800" fill="' + lblFill + '" style="pointer-events:none;font-family:inherit;">' + map.right + '</text>';
-      if (view.status === 'extracted') {
-        return '<svg viewBox="0 0 84 84" xmlns="http://www.w3.org/2000/svg"><g transform="translate(12,12)">'
-          + '<path d="' + crown + '" fill="' + st.bg + '" stroke="' + st.bd + '" stroke-width="2.5" stroke-dasharray="4,3"/>'
-          + '<line x1="18" y1="18" x2="42" y2="42" stroke="' + st.bd + '" stroke-width="3.5" stroke-linecap="round"/>'
-          + '<line x1="42" y1="18" x2="18" y2="42" stroke="' + st.bd + '" stroke-width="3.5" stroke-linecap="round"/>'
-          + '</g>' + letters + '</svg>';
-      }
-      var surfColor = view.surfColor || '#ef4444';
-      var zones = [
-        { key: 'top',    shape: '<polygon points="0,0 60,0 39,21 21,21"' },
-        { key: 'bottom', shape: '<polygon points="0,60 60,60 39,39 21,39"' },
-        { key: 'left',   shape: '<polygon points="0,0 21,21 21,39 0,60"' },
-        { key: 'right',  shape: '<polygon points="60,0 39,21 39,39 60,60"' },
-        { key: 'center', shape: '<circle cx="30" cy="30" r="9.5"' }
-      ];
-      var html = '<svg viewBox="0 0 84 84" xmlns="http://www.w3.org/2000/svg">'
-        + '<defs><clipPath id="' + clipId + '"><path d="' + crown + '"/></clipPath></defs>'
-        + '<g transform="translate(12,12)">'
-        + '<path d="' + crown + '" fill="' + st.bg + '"/>'
-        + '<g clip-path="url(#' + clipId + ')">';
-      zones.forEach(function(z) {
-        var surf = map[z.key];
-        var hit = (view.surfaces || []).indexOf(surf) !== -1;
-        var attrs = ' fill="' + (hit ? surfColor : 'transparent') + '"' + (hit ? ' fill-opacity="0.65"' : '')
-          + ' stroke="' + st.bd + '" stroke-opacity="0.4" stroke-width="1"';
-        if (interactive) attrs += ' class="te-surface" data-surface="' + surf + '" onclick="dcToggleSurface(\'' + surf + '\')" style="pointer-events:all;"';
-        html += z.shape + attrs + '/>';
-      });
-      html += '</g><path d="' + crown + '" fill="none" stroke="' + st.bd + '" stroke-width="2.5"/>';
-      if (view.status === 'crowned' || view.status === 'bridge') html += '<path d="' + crown + '" fill="none" stroke="' + st.bd + '" stroke-width="1" transform="translate(30,30) scale(0.82) translate(-30,-30)" stroke-dasharray="3,2"/>';
-      html += '</g>' + letters + '</svg>';
-      return html;
-    }
-    function dcBuildTooth(fdi, p) {
-      var d = dcDerive(p, fdi);
-      var pos = fdi % 10, upper = fdi < 30;
-      var w = pos <= 2 ? 46 : (pos === 3 ? 50 : (pos <= 5 ? 55 : 64));
-      var rootColor = d.status === 'root' ? '#65a30d' : (d.status === 'implant' ? '#059669' : '#cbd5e1');
-      var roots = '<div class="dc-roots ' + (upper ? 'up' : 'down') + '">';
-      var rc = dcRootCount(fdi);
-      for (var i = 0; i < rc; i++) roots += '<div class="dc-root-tip" style="background:' + rootColor + ';"></div>';
-      roots += '</div>';
-      var crown = '<div class="dc-crown" style="width:' + w + 'px;height:' + w + 'px;">' + dcToothSVG(fdi, d, false) + '</div>';
-      var num = '<div class="dc-num">' + fdi + '</div>';
-      var title = dcToothName(fdi) + ' — ' + DC_STATUS[d.status].label
-        + (d.alert ? ' ⚠ ' + d.alertLabel : '')
-        + (d.eventsCount ? ' (' + d.eventsCount + ' حدث)' : '');
-      return '<div class="dc-tooth" onclick="openToothEditor(' + fdi + ')" title="' + title + '">'
-        + (d.alert ? '<span class="dc-alert" title="' + d.alertLabel + '"></span>' : '')
-        + (upper ? roots + crown + num : num + crown + roots)
-        + '</div>';
-    }
-    var dcCurrentPid = null, teCurrentTooth = null, teEventType = null, teSurfaces = [];
-    function dcRenderChart() {
-      var p = allPatients[dcCurrentPid]; if (!p) return;
-      document.getElementById('dcUpperRow').innerHTML = DC_UPPER.map(function(f){ return dcBuildTooth(f, p); }).join('');
-      document.getElementById('dcLowerRow').innerHTML = DC_LOWER.map(function(f){ return dcBuildTooth(f, p); }).join('');
-      dcRenderSummary();
-    }
-    function dcRenderSummary() {
-      var p = allPatients[dcCurrentPid]; if (!p) return;
-      var counts = {}, alerts = 0;
-      DC_UPPER.concat(DC_LOWER).forEach(function(f) {
-        var d = dcDerive(p, f);
-        counts[d.status] = (counts[d.status] || 0) + 1;
-        if (d.alert) alerts++;
-      });
-      var order = ['caries', 'filled', 'root', 'crowned', 'bridge', 'implant', 'extracted'];
-      var html = order.filter(function(k){ return counts[k]; }).map(function(k) {
-        var st = DC_STATUS[k];
-        return '<span class="dc-sum-chip" style="border-color:' + st.bd + '55;"><span class="dc-legend-dot" style="background:' + st.bg + ';border-color:' + st.bd + ';"></span>' + st.label + ' <b style="color:' + st.bd + ';">' + counts[k] + '</b></span>';
-      }).join('');
-      if (alerts) html += '<span class="dc-sum-chip" style="border-color:#f9731655;color:#c2410c;">⚠ يحتاج انتباه <b style="color:#f97316;">' + alerts + '</b></span>';
-      if (!html) html = '<span class="dc-sum-chip" style="border-color:#10b98155;color:#047857;">✓ جميع الأسنان سليمة</span>';
-      document.getElementById('dcSummary').innerHTML = html;
-    }
-    function dcRenderLegend() {
-      document.getElementById('dcLegend').innerHTML = Object.keys(DC_STATUS).map(function(k) {
-        var st = DC_STATUS[k];
-        return '<span class="dc-legend-item"><span class="dc-legend-dot" style="background:' + st.bg + ';border-color:' + st.bd + ';"></span>' + st.label + '</span>';
-      }).join('');
-    }
-    function dcEventDef(e) {
-      return DC_EVENTS[e.type] || (e.to && DC_STATUS[e.to] ? { label: e.action || DC_STATUS[e.to].label, color: DC_STATUS[e.to].bd, kind: 'legacy' } : { label: e.action || 'حدث', color: '#64748b', kind: 'legacy' });
-    }
-    function dcRenderEvents() {
-      var p = allPatients[dcCurrentPid]; if (!p) return;
-      var evs = (p.dentalEvents || []).slice().sort(function(a, b) {
-        var d = (b.date || '').localeCompare(a.date || '');
-        return d !== 0 ? d : ((b.ts || 0) - (a.ts || 0));
-      }).slice(0, 40);
-      document.getElementById('dcEventsCount').textContent = '(' + ((p.dentalEvents || []).length) + ')';
-      var box = document.getElementById('dcEventsList');
-      if (!evs.length) { box.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:.8rem;">لا توجد أحداث بعد — اضغط على أي سن لتسجيل أول حدث</div>'; return; }
-      box.innerHTML = evs.map(function(e) {
-        var def = dcEventDef(e);
-        return '<div style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:7px 10px;font-size:.8rem;flex-wrap:wrap;">'
-          + '<span style="background:#0ea5e9;color:#fff;border-radius:6px;padding:2px 9px;font-weight:900;font-size:.75rem;flex-shrink:0;">' + escapeHtml(String(e.tooth)) + '</span>'
-          + '<span style="width:9px;height:9px;border-radius:3px;background:' + def.color + ';flex-shrink:0;"></span>'
-          + '<span style="font-weight:800;color:var(--text-primary);flex:1;min-width:110px;">' + escapeHtml(def.label)
-          + (e.surfaces && e.surfaces.length ? ' <span style="font-weight:700;color:' + def.color + ';font-size:.7rem;">[' + e.surfaces.join('،') + ']</span>' : '')
-          + (e.note ? '<span style="color:var(--text-muted);font-weight:600;font-size:.74rem;"> — ' + escapeHtml(e.note) + '</span>' : '') + '</span>'
-          + '<span style="font-size:.7rem;color:var(--text-muted);flex-shrink:0;"><i class="far fa-calendar" style="font-size:.62rem;"></i> ' + formatDateAr(e.date) + '</span>'
-          + (e.ts ? '<button class="dc-tl-del" onclick="event.stopPropagation();dcDeleteEvent(' + e.ts + ')" title="حذف الحدث"><i class="fas fa-trash"></i></button>' : '')
-          + '</div>';
-      }).join('');
-    }
-    window.openDentalChart = function(pid) {
-      var p = allPatients[pid]; if (!p) { showToast('اختر مريضاً أولاً', 'error'); return; }
-      dcCurrentPid = pid;
-      // ضمان معرّف ts لكل حدث قديم حتى يكون قابلاً للحذف
-      (p.dentalEvents || []).forEach(function(e, i) { if (!e.ts) e.ts = ((new Date(e.date || 0).getTime()) || 0) + i + 1; });
-      document.getElementById('dcPatientName').textContent = (p.name || '') + ' — اضغط على السن لعرض تاريخه وتسجيل حدث';
-      dcRenderLegend(); dcRenderChart(); dcRenderEvents();
-      document.getElementById('dentalChartModal').classList.remove('hidden');
-    };
-    window.closeDentalChart = function() { document.getElementById('dentalChartModal').classList.add('hidden'); };
-    window.openDentalChartFromEditor = function() {
-      var pid = document.getElementById('notePatientId').value;
-      if (pid) openDentalChart(pid);
-    };
-    // ── محرر السن: تسجيل الأحداث ──
-    function teEventBtn(k) {
-      var def = DC_EVENTS[k];
-      var sel = teEventType === k;
-      return '<button class="te-event-btn' + (sel ? ' sel' : '') + '" onclick="teSelectEvent(\'' + k + '\')"'
-        + ' style="' + (sel ? 'border-color:' + def.color + ';background:' + def.color + '14;color:' + def.color + ';' : '') + '">'
-        + '<span class="te-check"><i class="fas fa-check"></i></span>'
-        + '<span class="te-dot" style="background:' + def.color + '22;border-color:' + def.color + ';"></span>'
-        + def.label + '</button>';
-    }
-    function teRenderEventGrids() {
-      document.getElementById('teEventsFindings').innerHTML = DC_FINDINGS.map(teEventBtn).join('');
-      document.getElementById('teEventsTreatments').innerHTML = DC_TREATMENTS.map(teEventBtn).join('');
-    }
-    function teRenderBigTooth() {
-      var p = allPatients[dcCurrentPid]; if (!p || teCurrentTooth == null) return;
-      var d = dcDerive(p, teCurrentTooth);
-      var def = teEventType ? DC_EVENTS[teEventType] : null;
-      var view = {
-        status: (def && def.state) ? def.state : d.status,
-        surfaces: teSurfaces,
-        surfColor: def ? def.color : '#ef4444'
-      };
-      document.getElementById('teBigTooth').innerHTML = dcToothSVG(teCurrentTooth, view, true);
-      var off = teEventType === 'extracted';
-      document.getElementById('teSurfaceCard').style.opacity = off ? '0.45' : '1';
-    }
-    function teRenderCurrentChip() {
-      var p = allPatients[dcCurrentPid]; if (!p || teCurrentTooth == null) return;
-      var d = dcDerive(p, teCurrentTooth);
-      var st = DC_STATUS[d.status];
-      document.getElementById('teCurrentChip').innerHTML =
-        '<span style="width:10px;height:10px;border-radius:3px;background:' + st.bg + ';border:2px solid ' + st.bd + ';"></span>'
-        + '<span style="color:' + st.bd + ';">' + st.label + '</span>'
-        + (d.alert ? '<span style="color:#f97316;">⚠</span>' : '');
-      document.getElementById('teSub').textContent = 'الحالة الحالية مشتقة تلقائياً من ' + (d.eventsCount || 0) + ' حدث';
-    }
-    function teRenderHistory() {
-      var p = allPatients[dcCurrentPid]; if (!p) return;
-      var evs = dcToothEvents(p, teCurrentTooth).slice().reverse();
-      document.getElementById('teTlCount').textContent = evs.length ? '(' + evs.length + ')' : '';
-      var box = document.getElementById('teHistory');
-      if (!evs.length) { box.innerHTML = '<div style="color:var(--text-muted);font-size:.78rem;padding:4px 0;">لا يوجد تاريخ مسجل لهذا السن بعد</div>'; return; }
-      box.innerHTML = evs.map(function(e) {
-        var def = dcEventDef(e);
-        return '<div class="dc-tl-item">'
-          + '<span class="dc-tl-dot" style="border-color:' + def.color + ';"></span>'
-          + '<div class="dc-tl-body">'
-            + '<div class="dc-tl-action"><span style="color:' + def.color + ';">' + escapeHtml(def.label) + '</span>'
-            + (e.surfaces && e.surfaces.length ? '<span style="font-size:.68rem;font-weight:800;background:' + def.color + '18;color:' + def.color + ';border-radius:6px;padding:1px 7px;">' + e.surfaces.join('،') + '</span>' : '')
-            + '</div>'
-            + (e.note ? '<div style="font-size:.73rem;color:var(--text-secondary);margin-top:2px;">' + escapeHtml(e.note) + '</div>' : '')
-            + '<div class="dc-tl-meta">' + formatDateAr(e.date) + '</div>'
-          + '</div>'
-          + ((e.ts) ? '<button class="dc-tl-del" onclick="dcDeleteEvent(' + e.ts + ')" title="حذف الحدث"><i class="fas fa-trash"></i></button>' : '')
-          + '</div>';
-      }).join('');
-    }
-    window.openToothEditor = function(fdi) {
-      var p = allPatients[dcCurrentPid]; if (!p) return;
-      teCurrentTooth = fdi;
-      teEventType = null; teSurfaces = [];
-      document.getElementById('teTitle').textContent = 'السن ' + fdi + ' — ' + dcToothName(fdi);
-      _setVal('teNote', '');
-      _setVal('teDate', toLocalISODate(new Date()));
-      teRenderEventGrids(); teRenderBigTooth(); teRenderCurrentChip(); teRenderHistory();
-      document.getElementById('toothEditModal').classList.remove('hidden');
-    };
-    window.closeToothEditor = function() { document.getElementById('toothEditModal').classList.add('hidden'); teCurrentTooth = null; teEventType = null; teSurfaces = []; };
-    window.teSelectEvent = function(k) {
-      teEventType = (teEventType === k) ? null : k;   // ضغطة ثانية تلغي التحديد
-      if (teEventType === 'extracted') teSurfaces = [];
-      teRenderEventGrids(); teRenderBigTooth();
-    };
-    window.dcToggleSurface = function(sf) {
-      if (teEventType === 'extracted') return;
-      var i = teSurfaces.indexOf(sf);
-      if (i === -1) teSurfaces.push(sf); else teSurfaces.splice(i, 1);
-      teRenderBigTooth();
-    };
-    function dcRecomputeTooth(p, fdi) {
-      if (dcToothEvents(p, fdi).length === 0) {
-        p.teeth = p.teeth || {};
-        p.teeth[fdi] = { status: 'healthy', surfaces: [], notes: '' };   // لا أحداث = سن سليم
-      } else {
-        dcCacheDerived(p, fdi);
-      }
-    }
-    function dcCacheDerived(p, fdi) {
-      var d = dcDerive(p, fdi);
-      p.teeth = p.teeth || {};
-      p.teeth[fdi] = { status: d.status, surfaces: d.surfaces, notes: (p.teeth[fdi] && p.teeth[fdi].notes) || '' };
-    }
-    function dcPersist(p, okMsg) {
-      window._fb.setDoc(window._fb.docRef('patients', dcCurrentPid), p, { merge: true })
-        .then(function() { if (okMsg) showToast(okMsg, 'success'); })
-        .catch(function(e) { showToast('فشل الحفظ', 'error'); console.error(e); });
-    }
-    window.saveToothEdit = function() {
-      var p = allPatients[dcCurrentPid]; if (!p || teCurrentTooth == null) return;
-      if (!teEventType) { showToast('اختر نوع الحدث أولاً', 'error'); return; }
-      var fdi = teCurrentTooth;
-      var def = DC_EVENTS[teEventType];
-      var ev = {
-        tooth: fdi,
-        type: teEventType,
-        action: def.label,
-        surfaces: teSurfaces.slice(),
-        note: _getVal('teNote'),
-        date: _getVal('teDate') || toLocalISODate(new Date()),
-        ts: Date.now()
-      };
-      p.dentalEvents = p.dentalEvents || [];
-      p.dentalEvents.unshift(ev);
-      if (p.dentalEvents.length > 500) p.dentalEvents = p.dentalEvents.slice(0, 500);
-      dcCacheDerived(p, fdi);
-      dcPersist(p, '🦷 السن ' + fdi + ': ' + def.label);
-      // إبقاء المحرر مفتوحاً لتسجيل أحداث متتالية (تسوس ثم حشوة بنفس الجلسة)
-      teEventType = null; teSurfaces = []; _setVal('teNote', '');
-      teRenderEventGrids(); teRenderBigTooth(); teRenderCurrentChip(); teRenderHistory();
-      dcRenderChart(); dcRenderEvents();
-    };
-    window.dcDeleteEvent = function(ts) {
-      var p = allPatients[dcCurrentPid]; if (!p) return;
-      var ev = (p.dentalEvents || []).find(function(e){ return e.ts === ts; });
-      if (!ev) return;
-      var def = dcEventDef(ev);
-      if (!confirm('حذف الحدث "' + def.label + '" من السن ' + ev.tooth + '؟\nسيُعاد حساب لون السن تلقائياً.')) return;
-      p.dentalEvents = (p.dentalEvents || []).filter(function(e){ return e.ts !== ts; });
-      dcRecomputeTooth(p, ev.tooth);
-      dcPersist(p, 'تم حذف الحدث — أُعيد حساب حالة السن ' + ev.tooth);
-      dcRenderChart(); dcRenderEvents();
-      if (teCurrentTooth != null && !document.getElementById('toothEditModal').classList.contains('hidden')) {
-        teRenderBigTooth(); teRenderCurrentChip(); teRenderHistory();
-      }
-    };
-    // مسح كل أحداث السن الحالي — يعيده سليماً
-    window.dcClearToothEvents = function() {
-      var p = allPatients[dcCurrentPid]; if (!p || teCurrentTooth == null) return;
-      var evs = dcToothEvents(p, teCurrentTooth);
-      if (!evs.length) { showToast('لا توجد أحداث لهذا السن', 'info'); return; }
-      if (!confirm('مسح كل أحداث السن ' + teCurrentTooth + ' (' + evs.length + ' حدث)؟\nسيعود السن إلى الحالة السليمة.')) return;
-      p.dentalEvents = (p.dentalEvents || []).filter(function(e){ return String(e.tooth) !== String(teCurrentTooth); });
-      dcRecomputeTooth(p, teCurrentTooth);
-      dcPersist(p, '🦷 السن ' + teCurrentTooth + ' عاد سليماً');
-      teRenderBigTooth(); teRenderCurrentChip(); teRenderHistory();
-      dcRenderChart(); dcRenderEvents();
-    };
-
-    // ===== أدوات عامة للنماذج =====
-    function _setVal(id, v){ var el = document.getElementById(id); if (el) el.value = v || ''; }
-    function _getVal(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; }
-    function _setChecks(gridId, arr){ arr = arr || []; document.querySelectorAll('#' + gridId + ' input[type=checkbox]').forEach(function(cb){ cb.checked = arr.indexOf(cb.value) !== -1; }); }
-    function _getChecks(gridId){ return Array.prototype.slice.call(document.querySelectorAll('#' + gridId + ' input[type=checkbox]:checked')).map(function(cb){ return cb.value; }); }
-    function _setRadio(name, v){ document.querySelectorAll('input[name=' + name + ']').forEach(function(r){ r.checked = (r.value === v); }); }
-    function _getRadio(name){ var r = document.querySelector('input[name=' + name + ']:checked'); return r ? r.value : ''; }
-    // النقر مرة ثانية على خيار محدد يلغي تحديده
-    document.addEventListener('mousedown', function(e){ var l = e.target.closest('.ped-pill'); if (!l) return; var r = l.querySelector('input[type=radio]'); if (r) r._wasChecked = r.checked; });
-    document.addEventListener('click', function(e){ var l = e.target.closest('.ped-pill'); if (!l) return; var r = l.querySelector('input[type=radio]'); if (r && r._wasChecked) { r.checked = false; r._wasChecked = false; } });
-
-    // ===== كشفية الأسنان: تحميل/قراءة =====
-    function _dnLoadFields(v) {
+    // ===== كشفية القلبية: تحميل/قراءة الحقول الإضافية =====
+    function _cardioLoadFields(v) {
       v = v || {};
-      var ex = v.exam || {};
-      _setChecks('dnComplaints', v.complaints); _setVal('dnComplaintOther', v.complaintOther);
-      _setVal('dnPainLocation', v.painLocation); _setVal('dnPainDuration', v.painDuration);
-      _setRadio('dn_severity', v.severity);
-      _setChecks('dnSensitivity', v.sensitivity);
-      _setVal('dnComplaintDetailOther', v.complaintDetailOther);
-      _setRadio('dn_gums', ex.gums); _setRadio('dn_caries', ex.caries); _setRadio('dn_breath', ex.breath); _setRadio('dn_mobility', ex.mobility);
-      _setVal('dnExamOther', ex.other);
-      _setChecks('invGrid', v.investigations); _setVal('dnInvOtherName', v.invOtherName); _setVal('invNotesText', v.investigationNotes);
-      _setChecks('dnProcGrid', v.procedures); _setVal('dnProcOther', v.procOther);
-      _setVal('nextVisitDate', v.nextVisit); _setVal('dnNextOther', v.nextVisitOther);
+      var vit = v.vitals || {};
+      var set = function(id, val){ var el = document.getElementById(id); if (el) el.value = val || ''; };
+      set('complaintText', v.complaint);
+      set('vitalBp', vit.bp); set('vitalPulse', vit.pulse); set('vitalWeight', vit.weight); set('vitalSpo2', vit.spo2);
+      set('invNotesText', v.investigationNotes);
+      set('instructionsText', v.instructions);
+      set('nextVisitDate', v.nextVisit);
+      var inv = v.investigations || [];
+      document.querySelectorAll('#invGrid input[type=checkbox]').forEach(function(cb){ cb.checked = inv.indexOf(cb.value) !== -1; });
     }
-    function _dnFlushFields(v) {
-      v.complaints = _getChecks('dnComplaints'); v.complaintOther = _getVal('dnComplaintOther');
-      v.painLocation = _getVal('dnPainLocation'); v.painDuration = _getVal('dnPainDuration');
-      v.severity = _getRadio('dn_severity');
-      v.sensitivity = _getChecks('dnSensitivity');
-      v.complaintDetailOther = _getVal('dnComplaintDetailOther');
-      v.exam = { gums: _getRadio('dn_gums'), caries: _getRadio('dn_caries'), breath: _getRadio('dn_breath'), mobility: _getRadio('dn_mobility'), other: _getVal('dnExamOther') };
-      v.investigations = _getChecks('invGrid'); v.invOtherName = _getVal('dnInvOtherName'); v.investigationNotes = _getVal('invNotesText');
-      v.procedures = _getChecks('dnProcGrid'); v.procOther = _getVal('dnProcOther');
-      v.nextVisit = _getVal('nextVisitDate'); v.nextVisitOther = _getVal('dnNextOther');
+    function _cardioFlushFields(v) {
+      var get = function(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; };
+      v.complaint = get('complaintText');
+      v.vitals = { bp: get('vitalBp'), pulse: get('vitalPulse'), weight: get('vitalWeight'), spo2: get('vitalSpo2') };
+      v.investigations = Array.prototype.slice.call(document.querySelectorAll('#invGrid input[type=checkbox]:checked')).map(function(cb){ return cb.value; });
+      v.investigationNotes = get('invNotesText');
+      v.instructions = get('instructionsText');
+      v.nextVisit = get('nextVisitDate');
     }
 
     // ===== محرّر الزيارة =====
@@ -4515,7 +4068,7 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       document.getElementById('noteVisitIndex').value = idx;
       document.getElementById('diagnosisText').value = v.diagnosis || v.note || '';
       var _ceEl = document.getElementById('clinicalExamText'); if (_ceEl) _ceEl.value = v.clinicalExam || '';
-      _dnLoadFields(v);
+      _cardioLoadFields(v);
       document.getElementById('prescriptionText').value = v.prescription || '';
       // نصوص مستقلة: نص التحليل في labTest، ونص الأشعة في imagingTest
       _testBuf = { lab: v.labTest || '', imaging: v.imagingTest || '' };
@@ -4595,7 +4148,7 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       v.diagnosis    = document.getElementById('diagnosisText').value.trim();
       v.prescription = document.getElementById('prescriptionText').value.trim();
       var _ce = document.getElementById('clinicalExamText'); if (_ce) v.clinicalExam = _ce.value.trim();
-      _dnFlushFields(v);
+      _cardioFlushFields(v);
       _flushTestFields(v);
       var testText = (kind === 'imaging') ? v.imagingTest : v.labTest;
       if (kind === 'pharmacy' && !v.prescription) { showToast('اكتب الوصفة أولاً', 'error'); return; }
@@ -4617,10 +4170,6 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       var s = 'المريض: ' + (p.name || '-') + '\nالعمر: ' + age;
       if (p.phone) s += '\nالهاتف: ' + p.phone;
       if (p.bloodType) s += '\nزمرة الدم: ' + p.bloodType;
-      var _alg = (p.dentalAllergies || []).slice(); if (p.allergyOther) _alg.push(p.allergyOther);
-      if (_alg.length) s += '\n⚠️ حساسية: ' + _alg.join('، ');
-      if (p.generalDiseases && p.generalDiseases.length) s += '\nأمراض عامة: ' + p.generalDiseases.join('، ');
-      if (p.chronicMeds) s += '\nأدوية مزمنة: ' + p.chronicMeds;
       if (p.chronicDiseases) s += '\nأمراض مزمنة: ' + p.chronicDiseases;
       return s;
     }
@@ -4641,10 +4190,8 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       if (v.prescription) s += '*الوصفة الطبية:*\n' + v.prescription + '\n\n';
       if (v.labTest) s += '*التحاليل المطلوبة:*\n' + v.labTest + '\n\n';
       if (v.imagingTest) s += '*الأشعة المطلوبة:*\n' + v.imagingTest + '\n\n';
-      var _procs = (v.procedures || []).slice(); if (v.procOther && v.procOther.trim()) _procs.push(v.procOther.trim());
-      if (_procs.length) s += '*الإجراءات:*\n' + _procs.map(function(t){ return '• ' + t; }).join('\n') + '\n\n';
-      var _nv = v.nextVisit ? formatDateAr(v.nextVisit) : (v.nextVisitOther || '');
-      if (_nv) s += '*موعد المراجعة:* ' + _nv;
+      if (v.instructions) s += '*التعليمات:*\n' + v.instructions + '\n\n';
+      if (v.nextVisit) s += '*موعد المراجعة القادم:* ' + formatDateAr(v.nextVisit);
       return s.trim() || 'مرحباً';
     }
 
@@ -4656,7 +4203,7 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       v.diagnosis    = document.getElementById('diagnosisText').value.trim();
       v.prescription = document.getElementById('prescriptionText').value.trim();
       var _ce = document.getElementById('clinicalExamText'); if (_ce) v.clinicalExam = _ce.value.trim();
-      _dnFlushFields(v);
+      _cardioFlushFields(v);
       _flushTestFields(v);
       v.noteUpdatedAt = Date.now();
       window._fb.setDoc(window._fb.docRef('patients', pid), p, { merge: true })
@@ -4719,11 +4266,6 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       document.getElementById('piAddress').value = p.address || '';
       document.getElementById('piBlood').value = p.bloodType || '';
       document.getElementById('piChronic').value = p.chronicDiseases || '';
-      _setChecks('piGeneralDiseases', p.generalDiseases);
-      _setChecks('piAllergyList', p.dentalAllergies);
-      _setVal('piAllergyOther', p.allergyOther);
-      _setVal('piChronicMeds', p.chronicMeds);
-      _setChecks('piOralStatus', p.oralStatus);
       updatePiAge();
       document.getElementById('patientInfoModal').classList.remove('hidden');
     };
@@ -4742,11 +4284,6 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       p.address = document.getElementById('piAddress').value.trim();
       p.bloodType = document.getElementById('piBlood').value;
       p.chronicDiseases = document.getElementById('piChronic').value.trim();
-      p.generalDiseases = _getChecks('piGeneralDiseases');
-      p.dentalAllergies = _getChecks('piAllergyList');
-      p.allergyOther = _getVal('piAllergyOther');
-      p.chronicMeds = _getVal('piChronicMeds');
-      p.oralStatus = _getChecks('piOralStatus');
       window._fb.setDoc(window._fb.docRef('patients', pid), p, { merge: true })
         .then(function() { showToast('تم حفظ المعلومات', 'success'); })
         .catch(function(e) { showToast('فشل الحفظ', 'error'); console.error(e); });
@@ -4921,14 +4458,8 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
         + '</div>'
         + '<div class="rx"><span class="rxsym">R<sub>x</sub></span><span class="rxline"></span></div>'
         + '<div class="rxbody">' + rxText + '</div>'
-        + (function(){
-            var procs = (v.procedures || []).slice(); if (v.procOther && v.procOther.trim()) procs.push(v.procOther.trim());
-            var nv = v.nextVisit ? formatDateAr(v.nextVisit) : (v.nextVisitOther || '');
-            var h = '';
-            if (procs.length) h += '<div style="margin-top:10px;font-size:.9rem;line-height:1.9;"><b>🦷 الإجراءات:</b> ' + procs.map(escapeHtml).join(' — ') + '</div>';
-            if (nv) h += '<div style="margin-top:8px;font-size:.92rem;font-weight:700;"><b>موعد المراجعة:</b> ' + escapeHtml(nv) + '</div>';
-            return h;
-          })()
+        + ((v.instructions && v.instructions.trim()) ? '<div style="margin-top:10px;padding:10px 14px;border:1.5px dashed #99b8b4;border-radius:10px;font-size:.9rem;line-height:1.9;"><b>التعليمات:</b><br>' + escapeHtml(v.instructions) + '</div>' : '')
+        + (v.nextVisit ? '<div style="margin-top:8px;font-size:.92rem;font-weight:700;"><b>موعد المراجعة القادم:</b> ' + formatDateAr(v.nextVisit) + '</div>' : '')
         + '<div class="sig"><div class="box-s"><div class="lb">توقيع الطبيب</div><div class="ln"></div></div></div>';
       _printSheet('وصفة طبية', inner);
     };
