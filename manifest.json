@@ -1,7 +1,7 @@
 {
   "id": "docbook-doctor-v1",
-  "name": "DocBook — عيادة القلبية",
-  "short_name": "DocBook قلبية",
+  "name": "DocBook — عيادة الأسنان",
+  "short_name": "DocBook أسنان",
   "description": "نظام إدارة العيادة — لوحة الطبيب",
   "start_url": "./",
   "scope": "./",
