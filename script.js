@@ -4599,7 +4599,7 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       }).slice(0, 40);
       document.getElementById('dcEventsCount').textContent = '(' + ((p.dentalEvents || []).length) + ')';
       var box = document.getElementById('dcEventsList');
-      if (!evs.length) { box.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:.8rem;">لا توجد أحداث بعد — اضغط على أي سن لتسجيل أول حدث</div>'; return; }
+      if (!evs.length) { box.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:16px;color:var(--text-muted);font-size:.8rem;">لا توجد أحداث بعد — اضغط على أي سن لتسجيل أول حدث</div>'; return; }
       box.innerHTML = evs.map(function(e) {
         var def = dcEventDef(e);
         return '<div style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:7px 10px;font-size:.8rem;flex-wrap:wrap;">'
