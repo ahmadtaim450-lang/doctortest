@@ -4265,6 +4265,7 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
     // بناء السن: viewBox 84×84 — التاج في المنتصف والأحرف M/D/B/L خارج السن دائماً
     // view = الكائن المشتق { existence, coverage, endo, impacted, surfaces:{حرف:حالة} }
     // plain = بدون أحرف الأسطح (لعرض القوس المصغّر)
+    // مخطط السطوح المثمّن (Odontogram احترافي): مناطق بأحرف داخلية B/L/M/D/O
     function dcToothSVG(fdi, view, interactive, plain) {
       view = view || {};
       var surfaces  = view.surfaces || {};
@@ -4272,82 +4273,75 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       var coverage  = view.coverage || null;
       var impacted  = view.impacted || false;
       var isImplant = existence === 'implant';
-      var pos = fdi % 10;
-      var crown = dcCrownPath(pos);
+      var gone = existence === 'extracted' || existence === 'missing';
       var map = dcSurfaceMap(fdi);
-      var clipId = 'dcClip' + fdi + (interactive ? 'i' : '');
-      var lblFill = interactive ? '#475569' : '#94a3b8';
-      var lblSize = interactive ? '8.5' : '9';
-      var letters = plain ? '' : '<text x="42" y="10" text-anchor="middle" font-size="' + lblSize + '" font-weight="800" fill="' + lblFill + '" style="pointer-events:none;font-family:inherit;">' + map.top + '</text>'
-        + '<text x="42" y="82" text-anchor="middle" font-size="' + lblSize + '" font-weight="800" fill="' + lblFill + '" style="pointer-events:none;font-family:inherit;">' + map.bottom + '</text>'
-        + '<text x="6" y="45" text-anchor="middle" font-size="' + lblSize + '" font-weight="800" fill="' + lblFill + '" style="pointer-events:none;font-family:inherit;">' + map.left + '</text>'
-        + '<text x="78" y="45" text-anchor="middle" font-size="' + lblSize + '" font-weight="800" fill="' + lblFill + '" style="pointer-events:none;font-family:inherit;">' + map.right + '</text>';
-      // مفقود: إطار متقطّع باهت + شرطة «غير موجود»
-      if (existence === 'missing') {
-        return '<svg viewBox="0 0 84 84" xmlns="http://www.w3.org/2000/svg"><g transform="translate(12,12)" opacity="0.75">'
-          + '<path d="' + crown + '" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="2,3"/>'
-          + '<line x1="19" y1="30" x2="41" y2="30" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round"/>'
-          + '</g>' + letters + '</svg>';
-      }
-      // مقلوع: إطار متقطّع + X
-      if (existence === 'extracted') {
-        var xc = DC_STATUS.extracted;
-        return '<svg viewBox="0 0 84 84" xmlns="http://www.w3.org/2000/svg"><g transform="translate(12,12)">'
-          + '<path d="' + crown + '" fill="' + xc.bg + '" stroke="' + xc.bd + '" stroke-width="2.5" stroke-dasharray="4,3"/>'
-          + '<line x1="18" y1="18" x2="42" y2="42" stroke="' + xc.bd + '" stroke-width="3.5" stroke-linecap="round"/>'
-          + '<line x1="42" y1="18" x2="18" y2="42" stroke="' + xc.bd + '" stroke-width="3.5" stroke-linecap="round"/>'
-          + '</g>' + letters + '</svg>';
-      }
-      var baseBg = isImplant ? DC_STATUS.implant.bg : '#ffffff';
-      var outline = coverage === 'crowned' ? '#3b82f6' : (coverage === 'bridge' ? '#7c3aed' : (isImplant ? '#059669' : '#cbd5e1'));
+      var OCT = 'M30,5 L70,5 L95,30 L95,70 L70,95 L30,95 L5,70 L5,30 Z';
       var zones = [
-        { key: 'top',    shape: '<polygon points="0,0 60,0 39,21 21,21"' },
-        { key: 'bottom', shape: '<polygon points="0,60 60,60 39,39 21,39"' },
-        { key: 'left',   shape: '<polygon points="0,0 21,21 21,39 0,60"' },
-        { key: 'right',  shape: '<polygon points="60,0 39,21 39,39 60,60"' },
-        { key: 'center', shape: '<circle cx="30" cy="30" r="9.5"' }
+        { key: 'top',    d: 'M30,5 L70,5 L62,32 L38,32 Z',                lx: 50, ly: 24 },
+        { key: 'bottom', d: 'M30,95 L70,95 L62,68 L38,68 Z',              lx: 50, ly: 86 },
+        { key: 'left',   d: 'M30,5 L5,30 L5,70 L30,95 L38,68 L38,32 Z',   lx: 19, ly: 55 },
+        { key: 'right',  d: 'M70,5 L95,30 L95,70 L70,95 L62,68 L62,32 Z', lx: 81, ly: 55 },
+        { key: 'center', d: 'M44,32 h12 a6,6 0 0 1 6,6 v24 a6,6 0 0 1 -6,6 h-12 a6,6 0 0 1 -6,-6 v-24 a6,6 0 0 1 6,-6 Z', lx: 50, ly: 55 }
       ];
-      var html = '<svg viewBox="0 0 84 84" xmlns="http://www.w3.org/2000/svg">'
-        + '<defs><clipPath id="' + clipId + '"><path d="' + crown + '"/></clipPath></defs>'
-        + '<g transform="translate(12,12)">'
-        + '<path d="' + crown + '" fill="' + baseBg + '"/>'
-        + '<g clip-path="url(#' + clipId + ')">';
+      var body = '';
       zones.forEach(function(z) {
         var surf = map[z.key];
-        var state = surfaces[surf] || null;                          // كل سطح بحالته الخاصة
-        var fill = state ? (DC_SURF_COLORS[state] || '#ef4444') : 'transparent';
-        var op = state ? (coverage ? '0.3' : '0.68') : '0';          // تحت التاج تُعتَّم الأسطح
-        var attrs = ' fill="' + fill + '"' + (state ? ' fill-opacity="' + op + '"' : '')
-          + ' stroke="#94a3b8" stroke-opacity="0.35" stroke-width="1"';
-        if (interactive) attrs += ' class="te-surface" data-surface="' + surf + '" onclick="dcToggleSurface(\'' + surf + '\')" style="pointer-events:all;"';
-        html += z.shape + attrs + '/>';
+        var state = gone ? null : (surfaces[surf] || null);
+        var fill = state ? (DC_SURF_COLORS[state] || '#ef4444') : '#ffffff';
+        var fop  = state ? (coverage ? '.4' : '.92') : '1';
+        var attrs = ' fill="' + fill + '" fill-opacity="' + fop + '" stroke="#d8dfe9" stroke-width="1.6" stroke-linejoin="round"';
+        if (interactive && !gone) attrs += ' class="te-surface" data-surface="' + surf + '" onclick="dcToggleSurface(\'' + surf + '\')" style="pointer-events:all;cursor:pointer;"';
+        body += '<path d="' + z.d + '"' + attrs + '/>';
+        if (!plain) {
+          var lFill = state ? '#ffffff' : (gone ? '#c9d2df' : '#9aa7ba');
+          body += '<text x="' + z.lx + '" y="' + z.ly + '" text-anchor="middle" font-size="' + (interactive ? 14 : 13) + '" font-weight="800" fill="' + lFill + '" style="pointer-events:none;font-family:var(--font-num),sans-serif;">' + surf + '</text>';
+        }
       });
-      if (impacted) html += '<g opacity="0.55" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="3,3"><line x1="0" y1="16" x2="60" y2="16"/><line x1="0" y1="30" x2="60" y2="30"/><line x1="0" y1="44" x2="60" y2="44"/></g>';
-      html += '</g>'; // نهاية القص
-      if (coverage) html += '<path d="' + crown + '" fill="' + outline + '" fill-opacity="0.12"/>';
-      html += '<path d="' + crown + '" fill="none" stroke="' + outline + '" stroke-width="' + (coverage ? '3' : '2.5') + '"/>';
-      if (coverage) html += '<path d="' + crown + '" fill="none" stroke="' + outline + '" stroke-width="1" transform="translate(30,30) scale(0.82) translate(-30,-30)" stroke-dasharray="3,2"/>';
-      if (isImplant) html += '<g stroke="#059669" stroke-width="2" stroke-linecap="round"><line x1="30" y1="15" x2="30" y2="45"/><line x1="22" y1="23" x2="38" y2="23"/><line x1="22" y1="30" x2="38" y2="30"/><line x1="22" y1="37" x2="38" y2="37"/></g>';
-      html += '</g>' + letters + '</svg>';
-      return html;
+      var outline = coverage === 'crowned' ? '#3b82f6' : (coverage === 'bridge' ? '#7c3aed' : (isImplant ? '#059669' : '#c9d2df'));
+      var ow = coverage ? 5 : (isImplant ? 4 : 3);
+      var g = '<g' + (impacted ? ' opacity=".55"' : '') + '>' + body
+        + '<path d="' + OCT + '" fill="none" stroke="' + outline + '" stroke-width="' + ow + '" stroke-linejoin="round"/>';
+      if (impacted) g += '<path d="' + OCT + '" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-dasharray="6,5" stroke-linejoin="round"/>';
+      g += '</g>';
+      if (existence === 'extracted') g += '<path d="M25,25 L75,75 M75,25 L25,75" stroke="#94a3b8" stroke-width="9" stroke-linecap="round"/>';
+      if (existence === 'missing')   g += '<path d="M25,25 L75,75 M75,25 L25,75" stroke="#ef4444" stroke-width="9" stroke-linecap="round" stroke-opacity=".85"/>';
+      return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' + g + '</svg>';
+    }
+    // جذور مثلثية بقناة متقطعة (تخضرّ مع علاج العصب) — أو برغي زرعة
+    function dcRootsSVG(fdi, d, upper, w) {
+      var gone = (d.existence === 'extracted' || d.existence === 'missing');
+      if (gone) return '<svg class="dc-roots-svg" width="' + w + '" height="24" viewBox="0 0 64 24" style="visibility:hidden;"></svg>';
+      var inner = '';
+      if (d.existence === 'implant') {
+        var thr = '';
+        for (var t = 0; t < 3; t++) { var ty = upper ? (7 + t * 5.5) : (17 - t * 5.5); thr += '<line x1="27" y1="' + ty + '" x2="37" y2="' + (ty - 2) + '" stroke="#ecfdf5" stroke-width="1.4" stroke-opacity=".9"/>'; }
+        inner = upper
+          ? '<path d="M27,24 L29.5,3 Q32,0.8 34.5,3 L37,24 Z" fill="#059669"/>' + thr
+          : '<path d="M27,0 L29.5,21 Q32,23.2 34.5,21 L37,0 Z" fill="#059669"/>' + thr;
+      } else {
+        var rc = dcRootCount(fdi);
+        var rw = 13, gap = 3.5, total = rc * rw + (rc - 1) * gap, x0 = (64 - total) / 2;
+        var fill = d.endo ? '#bbf7d0' : '#eef2f8', stroke = d.endo ? '#22c55e' : '#c8d2e0', canal = d.endo ? '#16a34a' : '#b8c4d6';
+        for (var i = 0; i < rc; i++) {
+          var x = x0 + i * (rw + gap), mx = x + rw / 2;
+          if (upper) {
+            inner += '<path d="M' + x + ',23 L' + (mx - 1.6) + ',3.5 Q' + mx + ',1.2 ' + (mx + 1.6) + ',3.5 L' + (x + rw) + ',23 Z" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.4" stroke-linejoin="round"/>'
+                   + '<line x1="' + mx + '" y1="6" x2="' + mx + '" y2="20" stroke="' + canal + '" stroke-width="1.3" stroke-dasharray="2.5,2.2"/>';
+          } else {
+            inner += '<path d="M' + x + ',1 L' + (mx - 1.6) + ',20.5 Q' + mx + ',22.8 ' + (mx + 1.6) + ',20.5 L' + (x + rw) + ',1 Z" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.4" stroke-linejoin="round"/>'
+                   + '<line x1="' + mx + '" y1="4" x2="' + mx + '" y2="18" stroke="' + canal + '" stroke-width="1.3" stroke-dasharray="2.5,2.2"/>';
+          }
+        }
+      }
+      return '<svg class="dc-roots-svg" width="' + w + '" height="24" viewBox="0 0 64 24">' + inner + '</svg>';
     }
     function dcBuildTooth(fdi, p) {
       var d = dcDerive(p, fdi);
       var pos = fdi % 10, upper = fdi < 30;
-      var w = pos <= 2 ? 46 : (pos === 3 ? 50 : (pos <= 5 ? 55 : 64));
-      var gone = (d.existence === 'extracted' || d.existence === 'missing');
-      var rootColor = d.endo ? '#65a30d' : (d.existence === 'implant' ? '#059669' : '#cbd5e1');
-      var roots;
-      if (gone) {
-        roots = '<div class="dc-roots ' + (upper ? 'up' : 'down') + '" style="visibility:hidden;"><div class="dc-root-tip"></div></div>';
-      } else {
-        roots = '<div class="dc-roots ' + (upper ? 'up' : 'down') + '">';
-        var rc = dcRootCount(fdi);
-        for (var i = 0; i < rc; i++) roots += '<div class="dc-root-tip" style="background:' + rootColor + ';"></div>';
-        roots += '</div>';
-      }
+      var w = pos <= 2 ? 50 : (pos === 3 ? 54 : (pos <= 5 ? 58 : 68));
+      var roots = dcRootsSVG(fdi, d, upper, Math.round(w * 0.78));
       var crown = '<div class="dc-crown" style="width:' + w + 'px;height:' + w + 'px;">' + dcToothSVG(fdi, d, false) + '</div>';
-      var num = '<div class="dc-num">' + fdi + '</div>';
+      var num = '<div class="dc-num">' + Math.floor(fdi / 10) + '.' + pos + '</div>';
       var parts = [DC_STATUS[dcPrimaryStatus(d)].label];
       if (d.endo && dcPrimaryStatus(d) !== 'root') parts.push('عصب');
       if (d.impacted && dcPrimaryStatus(d) !== 'impacted') parts.push('منطمر');
@@ -4358,7 +4352,7 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       var showDot = d.alerts.length > 0;
       return '<div class="dc-tooth" onclick="openToothEditor(' + fdi + ')" title="' + escapeHtml(title) + '">'
         + (showDot ? '<span class="dc-alert" title="' + escapeHtml(alertTxt) + '"></span>' : '')
-        + (upper ? roots + crown + num : num + crown + roots)
+        + (upper ? num + roots + crown : crown + roots + num)
         + '</div>';
     }
     // ===== عرض القوس (Odontogram بيضوي) — نفس محرك الاشتقاق، توزيع هندسي على قطع ناقص =====
@@ -4372,13 +4366,13 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
         crown = 'M20,7 C27,3 37,3 44,7 C54,11 58,20 58,33 C58,47 54,56 44,61 C37,65 27,65 20,61 C10,56 6,47 6,33 C6,20 10,11 20,7 Z';
         fissure = '<path d="M21,25 C28,31 36,31 43,25 M21,42 C28,36 36,36 43,42 M32,28 L32,39" stroke="#8f94a6" stroke-opacity=".42" stroke-width="2" fill="none" stroke-linecap="round"/>';
       } else if (isPre) {
-        crown = 'M32,7 C48,8 56,20 56,37 C56,55 48,66 32,67 C16,66 8,55 8,37 C8,20 16,8 32,7 Z';
-        fissure = '<path d="M32,24 C29,32 35,44 32,52" stroke="#8f94a6" stroke-opacity=".35" stroke-width="2" fill="none" stroke-linecap="round"/>';
+        crown = 'M21,8 C27,5 37,5 43,8 C52,12 56,21 56,36 C56,51 52,59 43,64 C37,67 27,67 21,64 C12,59 8,51 8,36 C8,21 12,12 21,8 Z';
+        fissure = '<path d="M18,37 C26,32 38,32 46,37" stroke="#8f94a6" stroke-opacity=".35" stroke-width="2" fill="none" stroke-linecap="round"/>';
       } else if (pos === 3) {
-        crown = 'M32,5 C46,8 55,20 55,40 C55,60 44,72 32,75 C20,72 9,60 9,40 C9,20 18,8 32,5 Z';
-        fissure = '<path d="M32,22 C31,33 33,46 32,55" stroke="#8f94a6" stroke-opacity=".22" stroke-width="2" fill="none" stroke-linecap="round"/>';
+        crown = 'M32,4 C44,9 53,21 53,41 C53,61 44,73 32,75 C20,73 11,61 11,41 C11,21 20,9 32,4 Z';
+        fissure = '<path d="M32,20 C31,33 33,47 32,57" stroke="#8f94a6" stroke-opacity=".22" stroke-width="2" fill="none" stroke-linecap="round"/>';
       } else {
-        crown = 'M32,6 C46,8 55,20 55,40 C55,61 44,74 32,74 C20,74 9,61 9,40 C9,20 18,8 32,6 Z';
+        crown = 'M32,7 C46,7 54,17 54,36 C54,59 46,73 32,73 C18,73 10,59 10,36 C10,17 18,7 32,7 Z';
         fissure = '<path d="M25,20 C24,34 24,48 25,60 M39,20 C40,34 40,48 39,60" stroke="#8f94a6" stroke-opacity=".14" stroke-width="2" fill="none" stroke-linecap="round"/>';
       }
       var svgOpen = '<svg viewBox="0 0 64 ' + vbH + '" xmlns="http://www.w3.org/2000/svg">';
@@ -4464,12 +4458,12 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
         var dr = (i === 7) ? dl : dist(base[i], base[i + 1]);
         var vis = (i === 7) ? dr * 1.02 : (dl + dr) / 2 * 1.08;   // تلامس طفيف واقعي
         var pos = i + 1;
-        var frac = pos >= 6 ? (52 / 64) : (pos >= 4 ? (48 / 64) : (46 / 64)); // نسبة التاج من عرض الرسم
+        var frac = pos >= 6 ? (52 / 64) : (pos >= 4 ? (48 / 64) : (pos === 3 ? (42 / 64) : (44 / 64))); // نسبة التاج من عرض الرسم
         return vis / frac / W * 100;
       });
       var h = '<div class="dc-arch-mid-h"></div><div class="dc-arch-mid-v"></div>'
-        + '<div class="dc-arch-side" style="top:50%;left:3%;transform:translateY(-135%);">يمين</div>'
-        + '<div class="dc-arch-side" style="top:50%;right:3%;transform:translateY(-135%);">يسار</div>';
+        + '<div class="dc-arch-side" style="left:25%;top:50%;">يمين</div>'
+        + '<div class="dc-arch-side" style="left:75%;top:50%;">يسار</div>';
       DC_ARCH_QUADS.forEach(function(q) {
         q.teeth.forEach(function(fdi, i) {
           var b = base[i];
