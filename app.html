@@ -1346,31 +1346,13 @@
         <div id="dcSummary" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px;"></div>
         <!-- Legend -->
         <div id="dcLegend" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px;"></div>
-        <!-- View toggle (يظهر على الشاشات الكبيرة فقط — الموبايل قوس دائماً) -->
-        <div id="dcViewToggleWrap" style="display:flex;justify-content:center;margin-bottom:12px;">
-          <div class="sched-toggle">
-            <button id="dcViewBtnArch" onclick="dcSetView('arch')">🦷 قوس</button>
-            <button id="dcViewBtnRows" onclick="dcSetView('rows')">صفوف</button>
-          </div>
-        </div>
-        <!-- Chart: صفوف -->
-        <div id="dcRowsView">
-          <div class="glass-card" style="padding:14px 8px;background:var(--surface);border:1.5px solid var(--border);border-radius:16px;">
-            <div class="dc-jaw-label">الفك العلوي</div>
-            <!-- العرف السريري: يمين المريض على يسار الشاشة (أول عنصر بالـ RTL يظهر يميناً = جهة يسار المريض 28) -->
-            <div class="dc-row-wrap"><span class="dc-side">يسار</span><div class="dc-teeth-row" id="dcUpperRow"></div><span class="dc-side">يمين</span></div>
-            <div class="dc-midline">— خط الوسط —</div>
-            <div class="dc-row-wrap"><span class="dc-side">يسار</span><div class="dc-teeth-row" id="dcLowerRow"></div><span class="dc-side">يمين</span></div>
-            <div class="dc-jaw-label">الفك السفلي</div>
-          </div>
-        </div>
-        <!-- Chart: قوس (Odontogram بيضوي) -->
-        <div id="dcArchView" class="hidden">
-          <div class="glass-card" style="padding:14px 6px;background:var(--surface);border:1.5px solid var(--border);border-radius:16px;">
-            <div class="dc-jaw-label">الفك العلوي</div>
-            <div class="dc-arch" id="dcArch"></div>
-            <div class="dc-jaw-label">الفك السفلي</div>
-          </div>
+        <!-- Chart -->
+        <div class="glass-card" style="padding:14px 8px;background:var(--surface);border:1.5px solid var(--border);border-radius:16px;">
+          <div class="dc-jaw-label">الفك العلوي</div>
+          <div class="dc-row-wrap"><span class="dc-side">يمين</span><div class="dc-teeth-row" id="dcUpperRow"></div><span class="dc-side">يسار</span></div>
+          <div class="dc-midline">— خط الوسط —</div>
+          <div class="dc-row-wrap"><span class="dc-side">يمين</span><div class="dc-teeth-row" id="dcLowerRow"></div><span class="dc-side">يسار</span></div>
+          <div class="dc-jaw-label">الفك السفلي</div>
         </div>
         <!-- Events log -->
         <div class="glass-card" style="margin-top:14px;padding:14px 16px;background:var(--surface);border:1.5px solid var(--border);border-radius:16px;">

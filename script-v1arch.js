@@ -4137,6 +4137,13 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
     var DC_TREATMENTS = ['filled', 'root', 'crowned', 'bridge', 'implant', 'extracted', 'cleaning', 'healthy'];
     var DC_UPPER = [28,27,26,25,24,23,22,21,11,12,13,14,15,16,17,18];
     var DC_LOWER = [38,37,36,35,34,33,32,31,41,42,43,44,45,46,47,48];
+    // أرباع عرض القوس (Odontogram): يمين المريض = يسار الشاشة (العرف السريري)
+    var DC_ARCH_QUADS = [
+      { teeth: [11,12,13,14,15,16,17,18], sx: -1, jaw: 'up'  },
+      { teeth: [21,22,23,24,25,26,27,28], sx:  1, jaw: 'up'  },
+      { teeth: [41,42,43,44,45,46,47,48], sx: -1, jaw: 'low' },
+      { teeth: [31,32,33,34,35,36,37,38], sx:  1, jaw: 'low' }
+    ];
     function dcToothName(fdi) {
       var q = Math.floor(fdi / 10), pos = fdi % 10;
       var posNames = { 1: 'قاطع مركزي', 2: 'قاطع جانبي', 3: 'ناب', 4: 'ضاحك أول', 5: 'ضاحك ثاني', 6: 'طاحن أول', 7: 'طاحن ثاني', 8: 'طاحن ثالث' };
@@ -4257,7 +4264,8 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
     }
     // بناء السن: viewBox 84×84 — التاج في المنتصف والأحرف M/D/B/L خارج السن دائماً
     // view = الكائن المشتق { existence, coverage, endo, impacted, surfaces:{حرف:حالة} }
-    function dcToothSVG(fdi, view, interactive) {
+    // plain = بدون أحرف الأسطح (لعرض القوس المصغّر)
+    function dcToothSVG(fdi, view, interactive, plain) {
       view = view || {};
       var surfaces  = view.surfaces || {};
       var existence = view.existence || 'present';
@@ -4270,7 +4278,7 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       var clipId = 'dcClip' + fdi + (interactive ? 'i' : '');
       var lblFill = interactive ? '#475569' : '#94a3b8';
       var lblSize = interactive ? '8.5' : '9';
-      var letters = '<text x="42" y="10" text-anchor="middle" font-size="' + lblSize + '" font-weight="800" fill="' + lblFill + '" style="pointer-events:none;font-family:inherit;">' + map.top + '</text>'
+      var letters = plain ? '' : '<text x="42" y="10" text-anchor="middle" font-size="' + lblSize + '" font-weight="800" fill="' + lblFill + '" style="pointer-events:none;font-family:inherit;">' + map.top + '</text>'
         + '<text x="42" y="82" text-anchor="middle" font-size="' + lblSize + '" font-weight="800" fill="' + lblFill + '" style="pointer-events:none;font-family:inherit;">' + map.bottom + '</text>'
         + '<text x="6" y="45" text-anchor="middle" font-size="' + lblSize + '" font-weight="800" fill="' + lblFill + '" style="pointer-events:none;font-family:inherit;">' + map.left + '</text>'
         + '<text x="78" y="45" text-anchor="middle" font-size="' + lblSize + '" font-weight="800" fill="' + lblFill + '" style="pointer-events:none;font-family:inherit;">' + map.right + '</text>';
@@ -4353,13 +4361,82 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
         + (upper ? roots + crown + num : num + crown + roots)
         + '</div>';
     }
+    // ===== عرض القوس (Odontogram بيضوي) — نفس محرك الاشتقاق، توزيع هندسي على قطع ناقص =====
+    function dcArchHTML(p) {
+      var rx = 36.5, ry = 42;        // نصف قطر مسار الأسنان (% من الحاوية)
+      var rxN = 47.2, ryN = 48.6;    // نصف قطر أرقام FDI (خارج القوس)
+      var h = '<div class="dc-arch-mid-h"></div><div class="dc-arch-mid-v"></div>'
+        + '<div class="dc-arch-side" style="top:50%;left:3%;transform:translateY(-135%);">يمين</div>'
+        + '<div class="dc-arch-side" style="top:50%;right:3%;transform:translateY(-135%);">يسار</div>';
+      DC_ARCH_QUADS.forEach(function(q) {
+        q.teeth.forEach(function(fdi, i) {
+          var deg = (i + 0.55) * (86 / 8);            // زاوية السن من خط الوسط
+          var a = deg * Math.PI / 180;
+          var sinA = Math.sin(a), cosA = Math.cos(a);
+          var x  = 50 + q.sx * rx  * sinA;
+          var y  = (q.jaw === 'up') ? 50 - ry  * cosA : 50 + ry  * cosA;
+          var xN = 50 + q.sx * rxN * sinA;
+          var yN = (q.jaw === 'up') ? 50 - ryN * cosA : 50 + ryN * cosA;
+          var rot = (q.jaw === 'up') ? q.sx * deg : -q.sx * deg;  // ميلان السن مع مماس القوس
+          var d = dcDerive(p, fdi);
+          var pos = fdi % 10;
+          var w = pos >= 6 ? 13 : (pos >= 4 ? 11.6 : (pos === 3 ? 11 : 10.4));
+          var prim = dcPrimaryStatus(d);
+          var alertTxt = d.alerts.map(function(al){ return al.label; }).join('، ');
+          var title = dcToothName(fdi) + ' — ' + DC_STATUS[prim].label + (alertTxt ? ' ⚠ ' + alertTxt : '');
+          h += '<div class="dc-arch-tooth" style="width:' + w + '%;left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%;transform:translate(-50%,-50%) rotate(' + rot.toFixed(1) + 'deg);" onclick="openToothEditor(' + fdi + ')" title="' + escapeHtml(title) + '">'
+            + (d.alerts.length ? '<span class="dc-alert"></span>' : '')
+            + dcToothSVG(fdi, d, false, true) + '</div>';
+          var numStyle = (prim !== 'healthy') ? 'color:' + DC_STATUS[prim].bd + ';font-weight:700;' : '';
+          h += '<div class="dc-arch-num" style="left:' + xN.toFixed(2) + '%;top:' + yN.toFixed(2) + '%;' + numStyle + '">' + fdi + '</div>';
+        });
+      });
+      return h;
+    }
+    function dcRenderArch() {
+      var p = allPatients[dcCurrentPid]; if (!p) return;
+      var host = document.getElementById('dcArch'); if (!host) return;
+      host.innerHTML = dcArchHTML(p);
+    }
     var dcCurrentPid = null, teCurrentTooth = null, teEventType = null, teSurfaces = [];
     function dcRenderChart() {
       var p = allPatients[dcCurrentPid]; if (!p) return;
       document.getElementById('dcUpperRow').innerHTML = DC_UPPER.map(function(f){ return dcBuildTooth(f, p); }).join('');
       document.getElementById('dcLowerRow').innerHTML = DC_LOWER.map(function(f){ return dcBuildTooth(f, p); }).join('');
+      dcRenderArch();
       dcRenderSummary();
     }
+    // ── وضع العرض: الموبايل قوس دائماً، الشاشات الكبيرة زر تبديل (يُحفظ الاختيار) ──
+    var dcViewMode = null;
+    function dcIsMobile() { return window.innerWidth <= 700; }
+    function dcGetView() {
+      if (dcIsMobile()) return 'arch';
+      if (dcViewMode) return dcViewMode;
+      try { return localStorage.getItem('dcChartView') || 'rows'; } catch (e) { return 'rows'; }
+    }
+    window.dcSetView = function(m) {
+      dcViewMode = m;
+      try { localStorage.setItem('dcChartView', m); } catch (e) {}
+      dcApplyView();
+    };
+    function dcApplyView() {
+      var mode = dcGetView();
+      var rows = document.getElementById('dcRowsView'), arch = document.getElementById('dcArchView');
+      if (rows) rows.classList.toggle('hidden', mode !== 'rows');
+      if (arch) arch.classList.toggle('hidden', mode !== 'arch');
+      var wrap = document.getElementById('dcViewToggleWrap');
+      if (wrap) wrap.style.display = dcIsMobile() ? 'none' : 'flex';
+      var bR = document.getElementById('dcViewBtnRows'), bA = document.getElementById('dcViewBtnArch');
+      if (bR) bR.classList.toggle('active', mode === 'rows');
+      if (bA) bA.classList.toggle('active', mode === 'arch');
+      dcRenderChart();
+    }
+    var _dcResizeT = null;
+    window.addEventListener('resize', function() {
+      var m = document.getElementById('dentalChartModal');
+      if (!m || m.classList.contains('hidden')) return;
+      clearTimeout(_dcResizeT); _dcResizeT = setTimeout(dcApplyView, 180);
+    });
     function dcRenderSummary() {
       var p = allPatients[dcCurrentPid]; if (!p) return;
       var counts = { caries:0, filled:0, root:0, crowned:0, bridge:0, implant:0, extracted:0, missing:0, impacted:0 };
@@ -4425,7 +4502,7 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       // ضمان معرّف ts لكل حدث قديم حتى يكون قابلاً للحذف
       (p.dentalEvents || []).forEach(function(e, i) { if (!e.ts) e.ts = ((new Date(e.date || 0).getTime()) || 0) + i + 1; });
       document.getElementById('dcPatientName').textContent = (p.name || '') + ' — اضغط على السن لعرض تاريخه وتسجيل حدث';
-      dcRenderLegend(); dcRenderChart(); dcRenderEvents();
+      dcRenderLegend(); dcApplyView(); dcRenderEvents();
       document.getElementById('dentalChartModal').classList.remove('hidden');
     };
     window.closeDentalChart = function() { document.getElementById('dentalChartModal').classList.add('hidden'); };
