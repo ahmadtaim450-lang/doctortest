@@ -3951,9 +3951,9 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
         + chip('العنوان', escapeHtml(p.address || '-'))
         + chip('إجمالي الزيارات', String(p.totalVisits || (p.appointments ? p.appointments.length : 0)))
         + chip('🩺 أمراض عامة', (p.generalDiseases && p.generalDiseases.length) ? escapeHtml(p.generalDiseases.join('، ')) : 'لا يوجد', (p.generalDiseases && p.generalDiseases.length) ? '#d97706' : 'var(--text-muted)')
-        + chip('⚠️ حساسية', (function(){ var a = (p.dentalAllergies || []).slice(); if (p.allergyOther) a.push(p.allergyOther); return a.length ? escapeHtml(a.join('، ')) : 'لا يوجد'; })(), ((p.dentalAllergies && p.dentalAllergies.length) || p.allergyOther) ? '#dc2626' : 'var(--text-muted)')
+        + chip('حساسية', (function(){ var a = (p.dentalAllergies || []).slice(); if (p.allergyOther) a.push(p.allergyOther); return a.length ? escapeHtml(a.join('، ')) : 'لا يوجد'; })(), ((p.dentalAllergies && p.dentalAllergies.length) || p.allergyOther) ? '#dc2626' : 'var(--text-muted)')
         + chip('💊 أدوية مزمنة', p.chronicMeds ? escapeHtml(p.chronicMeds) : '-', p.chronicMeds ? '#7c3aed' : 'var(--text-muted)')
-        + chip('🦷 الحالة الفموية', (p.oralStatus && p.oralStatus.length) ? escapeHtml(p.oralStatus.join('، ')) : '-', (p.oralStatus && p.oralStatus.length) ? '#0ea5e9' : 'var(--text-muted)')
+        + chip('الحالة الفموية', (p.oralStatus && p.oralStatus.length) ? escapeHtml(p.oralStatus.join('، ')) : '-', (p.oralStatus && p.oralStatus.length) ? 'var(--primary)' : 'var(--text-muted)')
         + '<div style="grid-column:1/-1;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:8px 11px;min-width:0;">'
           + '<div style="font-size:.68rem;color:var(--text-muted);font-weight:600;margin-bottom:2px;">أمراض مزمنة</div>'
           + '<div style="font-size:.86rem;font-weight:700;word-break:break-word;overflow-wrap:anywhere;line-height:1.7;max-height:160px;overflow-y:auto;color:' + (p.chronicDiseases ? '#d97706' : 'var(--text-muted)') + ';">' + escapeHtml(p.chronicDiseases || 'لا يوجد') + '</div></div>';
@@ -4017,12 +4017,12 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       if (!p || !dateStr) return '';
       var evs = (p.dentalEvents || []).filter(function(e){ return e.date === dateStr; });
       if (!evs.length) return '';
-      return '<div style="margin-top:12px;">' + _dnSecTitle('🦷 أحداث الأسنان في هذا اليوم', 'fa-tooth')
+      return '<div style="margin-top:12px;">' + _dnSecTitle('أحداث الأسنان في هذا اليوم', 'fa-tooth')
         + '<div style="display:flex;flex-direction:column;gap:5px;">'
         + evs.map(function(e){
-            var def = (typeof dcEventDef === 'function') ? dcEventDef(e) : { label: e.action || 'حدث', color: '#0ea5e9' };
+            var def = (typeof dcEventDef === 'function') ? dcEventDef(e) : { label: e.action || 'حدث', color: '#0d9488' };
             return '<div style="display:flex;align-items:center;gap:8px;background:#f0f9ff;border:1.5px solid #7dd3fc;border-radius:9px;padding:6px 10px;font-size:.8rem;">'
-              + '<span style="background:#0ea5e9;color:#fff;border-radius:6px;padding:2px 8px;font-weight:900;font-size:.74rem;flex-shrink:0;">' + escapeHtml(String(e.tooth)) + '</span>'
+              + '<span style="background:var(--primary);color:#fff;border-radius:6px;padding:2px 8px;font-weight:900;font-size:.74rem;flex-shrink:0;">' + escapeHtml(String(e.tooth)) + '</span>'
               + '<span style="width:9px;height:9px;border-radius:3px;background:' + def.color + ';flex-shrink:0;"></span>'
               + '<span style="font-weight:800;color:#0369a1;">' + escapeHtml(def.label) + '</span>'
               + (e.surfaces && e.surfaces.length ? '<span style="font-size:.68rem;font-weight:800;color:' + def.color + ';">[' + e.surfaces.join('،') + ']</span>' : '')
@@ -4065,7 +4065,7 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
             + _dnInvestigationsRow(v)
             + _dnEventsRowForDate(p, v.date)
             + _visitSection('التشخيص', 'fa-notes-medical', v.diagnosis || v.note)
-            + _dnChipsRow('🦷 الإجراءات', 'fa-teeth', v.procedures, v.procOther, '#fffbeb', '#fde68a', '#b45309')
+            + _dnChipsRow('الإجراءات', 'fa-teeth', v.procedures, v.procOther, '#fffbeb', '#fde68a', '#b45309')
             + _visitSection('💊 الأدوية', 'fa-prescription', v.prescription)
             + _dnNextVisitRow(v)
             + (hasLab ? _visitSection('التحاليل المطلوبة', 'fa-vials', v.labTest) : '')
@@ -4283,6 +4283,29 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
         { key: 'right',  d: 'M70,5 L95,30 L95,70 L70,95 L62,68 L62,32 Z', lx: 81, ly: 55 },
         { key: 'center', d: 'M44,32 h12 a6,6 0 0 1 6,6 v24 a6,6 0 0 1 -6,6 h-12 a6,6 0 0 1 -6,-6 v-24 a6,6 0 0 1 6,-6 Z', lx: 50, ly: 55 }
       ];
+      // الناب: تاج مدبّب مميّز — الذروة نحو السطح القاطع (أسفل للعلوي، أعلى للسفلي)
+      var posT = fdi % 10, upperT = Math.floor(fdi / 10) <= 2;
+      if (posT === 3) {
+        if (upperT) {
+          OCT = 'M30,4 L70,4 L95,28 L95,54 L50,97 L5,54 L5,28 Z';
+          zones = [
+            { key: 'top',    d: 'M30,4 L70,4 L62,30 L38,30 Z',              lx: 50, ly: 22 },
+            { key: 'bottom', d: 'M5,54 L38,58 L62,58 L95,54 L50,97 Z',      lx: 50, ly: 74 },
+            { key: 'left',   d: 'M30,4 L5,28 L5,54 L38,58 L38,30 Z',        lx: 18, ly: 45 },
+            { key: 'right',  d: 'M70,4 L95,28 L95,54 L62,58 L62,30 Z',      lx: 82, ly: 45 },
+            { key: 'center', d: 'M44,30 h12 a6,6 0 0 1 6,6 v16 a6,6 0 0 1 -6,6 h-12 a6,6 0 0 1 -6,-6 v-16 a6,6 0 0 1 6,-6 Z', lx: 50, ly: 48 }
+          ];
+        } else {
+          OCT = 'M50,3 L95,46 L95,72 L70,96 L30,96 L5,72 L5,46 Z';
+          zones = [
+            { key: 'top',    d: 'M5,46 L38,42 L62,42 L95,46 L50,3 Z',       lx: 50, ly: 28 },
+            { key: 'bottom', d: 'M30,96 L70,96 L62,70 L38,70 Z',            lx: 50, ly: 88 },
+            { key: 'left',   d: 'M5,46 L5,72 L30,96 L38,70 L38,42 Z',       lx: 18, ly: 58 },
+            { key: 'right',  d: 'M95,46 L95,72 L70,96 L62,70 L62,42 Z',     lx: 82, ly: 58 },
+            { key: 'center', d: 'M44,42 h12 a6,6 0 0 1 6,6 v16 a6,6 0 0 1 -6,6 h-12 a6,6 0 0 1 -6,-6 v-16 a6,6 0 0 1 6,-6 Z', lx: 50, ly: 55 }
+          ];
+        }
+      }
       var body = '';
       zones.forEach(function(z) {
         var surf = map[z.key];
@@ -4369,7 +4392,7 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
         crown = 'M21,8 C27,5 37,5 43,8 C52,12 56,21 56,36 C56,51 52,59 43,64 C37,67 27,67 21,64 C12,59 8,51 8,36 C8,21 12,12 21,8 Z';
         fissure = '<path d="M18,37 C26,32 38,32 46,37" stroke="#8f94a6" stroke-opacity=".35" stroke-width="2" fill="none" stroke-linecap="round"/>';
       } else if (pos === 3) {
-        crown = 'M32,4 C44,9 53,21 53,41 C53,61 44,73 32,75 C20,73 11,61 11,41 C11,21 20,9 32,4 Z';
+        crown = 'M32,2 C43,9 52,22 52,42 C52,62 44,74 32,76 C20,74 12,62 12,42 C12,22 21,9 32,2 Z';
         fissure = '<path d="M32,20 C31,33 33,47 32,57" stroke="#8f94a6" stroke-opacity=".22" stroke-width="2" fill="none" stroke-linecap="round"/>';
       } else {
         crown = 'M32,7 C46,7 54,17 54,36 C54,59 46,73 32,73 C18,73 10,59 10,36 C10,17 18,7 32,7 Z';
@@ -4458,7 +4481,7 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
         var dr = (i === 7) ? dl : dist(base[i], base[i + 1]);
         var vis = (i === 7) ? dr * 1.02 : (dl + dr) / 2 * 1.08;   // تلامس طفيف واقعي
         var pos = i + 1;
-        var frac = pos >= 6 ? (52 / 64) : (pos >= 4 ? (48 / 64) : (pos === 3 ? (42 / 64) : (44 / 64))); // نسبة التاج من عرض الرسم
+        var frac = pos >= 6 ? (52 / 64) : (pos >= 4 ? (48 / 64) : (pos === 3 ? (40 / 64) : (44 / 64))); // نسبة التاج من عرض الرسم
         return vis / frac / W * 100;
       });
       var h = '<div class="dc-arch-mid-h"></div><div class="dc-arch-mid-v"></div>'
@@ -4555,8 +4578,8 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
         var st = DC_STATUS[k];
         return '<span class="dc-sum-chip" style="border-color:' + st.bd + '55;"><span class="dc-legend-dot" style="background:' + st.bg + ';border-color:' + st.bd + ';"></span>' + st.label + ' <b style="color:' + st.bd + ';">' + counts[k] + '</b></span>';
       }).join('');
-      if (attention) html += '<span class="dc-sum-chip" style="border-color:#f9731655;color:#c2410c;">⚠ يحتاج انتباه <b style="color:#f97316;">' + attention + '</b></span>';
-      if (!html) html = '<span class="dc-sum-chip" style="border-color:#10b98155;color:#047857;">✓ جميع الأسنان سليمة</span>';
+      if (attention) html += '<span class="dc-sum-chip" style="border-color:#f9731655;color:#c2410c;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#f97316" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg> يحتاج انتباه <b style="color:#f97316;">' + attention + '</b></span>';
+      if (!html) html = '<span class="dc-sum-chip" style="border-color:#0d948855;color:#0f766e;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#0d9488" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="m8.5 12.5 2.5 2.5 4.5-5.5"/></svg> جميع الأسنان سليمة</span>';
       document.getElementById('dcSummary').innerHTML = html;
     }
     function dcRenderLegend() {
@@ -4580,7 +4603,7 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       box.innerHTML = evs.map(function(e) {
         var def = dcEventDef(e);
         return '<div style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:7px 10px;font-size:.8rem;flex-wrap:wrap;">'
-          + '<span style="background:#0ea5e9;color:#fff;border-radius:6px;padding:2px 9px;font-weight:900;font-size:.75rem;flex-shrink:0;">' + escapeHtml(String(e.tooth)) + '</span>'
+          + '<span style="background:var(--primary);color:#fff;border-radius:6px;padding:2px 9px;font-weight:900;font-size:.75rem;flex-shrink:0;">' + escapeHtml(String(e.tooth)) + '</span>'
           + '<span style="width:9px;height:9px;border-radius:3px;background:' + def.color + ';flex-shrink:0;"></span>'
           + '<span style="font-weight:800;color:var(--text-primary);flex:1;min-width:110px;">' + escapeHtml(def.label)
           + (e.surfaces && e.surfaces.length ? ' <span style="font-weight:700;color:' + def.color + ';font-size:.7rem;">[' + e.surfaces.join('،') + ']</span>' : '')
@@ -4751,7 +4774,7 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       p.dentalEvents.unshift(ev);
       if (p.dentalEvents.length > 500) p.dentalEvents = p.dentalEvents.slice(0, 500);
       dcCacheDerived(p, fdi);
-      dcPersist(p, '🦷 السن ' + fdi + ': ' + def.label);
+      dcPersist(p, 'السن ' + fdi + ': ' + def.label);
       // إبقاء المحرر مفتوحاً لتسجيل أحداث متتالية (تسوس ثم حشوة بنفس الجلسة)
       teEventType = null; teSurfaces = []; _setVal('teNote', '');
       teRenderEventGrids(); teRenderBigTooth(); teRenderCurrentChip(); teRenderHistory();
@@ -4779,7 +4802,7 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       if (!confirm('مسح كل أحداث السن ' + teCurrentTooth + ' (' + evs.length + ' حدث)؟\nسيعود السن إلى الحالة السليمة.')) return;
       p.dentalEvents = (p.dentalEvents || []).filter(function(e){ return String(e.tooth) !== String(teCurrentTooth); });
       dcRecomputeTooth(p, teCurrentTooth);
-      dcPersist(p, '🦷 السن ' + teCurrentTooth + ' عاد سليماً');
+      dcPersist(p, 'السن ' + teCurrentTooth + ' عاد سليماً');
       teRenderBigTooth(); teRenderCurrentChip(); teRenderHistory();
       dcRenderChart(); dcRenderEvents();
     };

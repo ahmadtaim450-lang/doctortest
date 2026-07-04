@@ -962,7 +962,7 @@
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;flex-wrap:wrap;">
             <h4 style="font-weight:800;font-size:.9rem;color:var(--primary);margin:0;"><i class="fas fa-folder-open" style="margin-left:6px;"></i>أرشيف الزيارات <span id="chartVisitsCount" style="font-size:.72rem;color:var(--text-muted);font-weight:600;"></span></h4>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button onclick="openDentalChart(currentPatientIdForVisit)" style="padding:7px 14px;font-size:.8rem;background:#0ea5e9;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;">🦷 مخطط الأسنان</button>
+              <button onclick="openDentalChart(currentPatientIdForVisit)" style="padding:7px 14px;font-size:.8rem;background:linear-gradient(135deg,var(--primary-5),var(--primary-7));color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-weight:700;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(13,148,136,.3);"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M12 5.5c-1.6-1.8-4.1-2.3-6-1.1C4.1 5.6 3.5 7.9 4.2 9.9c.8 2.1 1.2 4.3 1.4 6.5.15 1.6.4 3.2 1.2 4.6.4.75 1.5.8 2 .1.8-1.2 1.1-2.7 1.5-4.1.3-1.1 1.9-1.1 2.2 0 .4 1.4.7 2.9 1.5 4.1.5.7 1.6.65 2-.1.8-1.4 1.05-3 1.2-4.6.2-2.2.6-4.4 1.4-6.5.7-2 .1-4.3-1.8-5.5-1.9-1.2-4.4-.7-6 1.1z"/></svg> مخطط الأسنان</button>
               <button onclick="addNewVisit(currentPatientIdForVisit)" class="btn-primary" style="padding:7px 14px;font-size:.8rem;"><i class="fas fa-plus"></i> زيارة جديدة</button>
             </div>
           </div>
@@ -1114,7 +1114,7 @@
         <div><label class="form-label"><i class="fas fa-pills" style="color:#7c3aed;margin-left:4px;"></i> أدوية مزمنة</label>
           <input type="text" id="piChronicMeds" class="form-input" placeholder="مثال: أسبرين، ميتفورمين...">
         </div>
-        <div><label class="form-label">🦷 الحالة الفموية العامة</label>
+        <div><label class="form-label">الحالة الفموية العامة</label>
           <div class="inv-grid" id="piOralStatus" style="grid-template-columns:repeat(2,1fr);">
             <label class="inv-opt"><input type="checkbox" value="سليمة"> سليمة</label>
             <label class="inv-opt"><input type="checkbox" value="تسوس"> تسوس</label>
@@ -1161,9 +1161,9 @@
           <div style="display:flex;flex-direction:column;gap:16px;">
 
             <!-- 🦷 شريط مخطط الأسنان -->
-            <div class="ve-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:1.5px solid #7dd3fc;">
-              <div style="font-size:.84rem;font-weight:800;color:#0369a1;line-height:1.6;">🦷 حالات الأسنان تُسجَّل من المخطط مباشرة<br><span style="font-weight:600;font-size:.74rem;color:#0284c7;">اضغط على السن → اختر الإجراء → يُسجَّل تلقائياً كحدث</span></div>
-              <button onclick="openDentalChartFromEditor()" style="padding:9px 16px;font-size:.82rem;background:#0ea5e9;color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-weight:800;white-space:nowrap;">فتح المخطط</button>
+            <div class="ve-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:linear-gradient(135deg,#f0fdfa,#ccfbf1);border:1.5px solid #5eead4;">
+              <div style="font-size:.84rem;font-weight:800;color:#0f766e;line-height:1.6;display:flex;align-items:flex-start;gap:6px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M12 5.5c-1.6-1.8-4.1-2.3-6-1.1C4.1 5.6 3.5 7.9 4.2 9.9c.8 2.1 1.2 4.3 1.4 6.5.15 1.6.4 3.2 1.2 4.6.4.75 1.5.8 2 .1.8-1.2 1.1-2.7 1.5-4.1.3-1.1 1.9-1.1 2.2 0 .4 1.4.7 2.9 1.5 4.1.5.7 1.6.65 2-.1.8-1.4 1.05-3 1.2-4.6.2-2.2.6-4.4 1.4-6.5.7-2 .1-4.3-1.8-5.5-1.9-1.2-4.4-.7-6 1.1z"/></svg><span>حالات الأسنان تُسجَّل من المخطط مباشرة<br><span style="font-weight:600;font-size:.74rem;color:#0d9488;">اضغط على السن → اختر الإجراء → يُسجَّل تلقائياً كحدث</span></span></div>
+              <button onclick="openDentalChartFromEditor()" style="padding:9px 16px;font-size:.82rem;background:linear-gradient(135deg,var(--primary-5),var(--primary-7));color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-weight:800;white-space:nowrap;box-shadow:0 2px 8px rgba(13,148,136,.3);">فتح المخطط</button>
             </div>
 
             <!-- 🟡 سبب المراجعة -->
@@ -1252,7 +1252,7 @@
 
             <!-- 🟤 العلاج -->
             <div class="ve-card">
-              <label class="ve-label"><span class="ve-ico" style="background:#fffbeb;border-color:#fde68a;"><i class="fas fa-teeth" style="font-size:.7rem;color:#d97706;"></i></span> العلاج — 🦷 الإجراءات</label>
+              <label class="ve-label"><span class="ve-ico" style="background:#fffbeb;border-color:#fde68a;"><i class="fas fa-teeth" style="font-size:.7rem;color:#d97706;"></i></span> العلاج — الإجراءات</label>
               <div class="inv-grid" id="dnProcGrid">
                 <label class="inv-opt"><input type="checkbox" value="حشوة"> حشوة</label>
                 <label class="inv-opt"><input type="checkbox" value="قلع"> قلع</label>
@@ -1331,61 +1331,60 @@
 
 
   <!-- ========== 🦷 مخطط الأسنان ========== -->
-  <div id="dentalChartModal" class="hidden fixed inset-0 z-[190] modal-overlay" onclick="if(event.target===this)closeDentalChart()">
-    <div class="modal-content" style="max-width:1150px;width:96%;max-height:94vh;display:flex;flex-direction:column;overflow:hidden;border-radius:18px;">
-      <div style="display:flex;align-items:center;gap:12px;padding:13px 20px;border-bottom:1.5px solid var(--border);background:var(--surface);flex-shrink:0;">
-        <span style="width:38px;height:38px;border-radius:10px;background:#0ea5e9;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🦷</span>
-        <div style="flex:1;min-width:0;">
-          <h3 style="font-weight:800;font-size:1rem;color:var(--text-primary);">مخطط الأسنان</h3>
-          <p id="dcPatientName" style="font-size:.75rem;color:var(--text-muted);margin-top:1px;"></p>
-        </div>
-        <button onclick="closeDentalChart()" style="width:34px;height:34px;border-radius:9px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;"><i class="fas fa-times"></i></button>
+  <!-- 🦷 مخطط الأسنان — صفحة كاملة -->
+  <div id="dentalChartModal" class="hidden fixed inset-0 z-[190] dc-page">
+    <div class="dc-page-head">
+      <button onclick="closeDentalChart()" class="dc-back" title="رجوع"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+      <span class="dc-head-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.5c-1.6-1.8-4.1-2.3-6-1.1C4.1 5.6 3.5 7.9 4.2 9.9c.8 2.1 1.2 4.3 1.4 6.5.15 1.6.4 3.2 1.2 4.6.4.75 1.5.8 2 .1.8-1.2 1.1-2.7 1.5-4.1.3-1.1 1.9-1.1 2.2 0 .4 1.4.7 2.9 1.5 4.1.5.7 1.6.65 2-.1.8-1.4 1.05-3 1.2-4.6.2-2.2.6-4.4 1.4-6.5.7-2 .1-4.3-1.8-5.5-1.9-1.2-4.4-.7-6 1.1z"/></svg></span>
+      <div class="dc-head-txt">
+        <h3>مخطط الأسنان</h3>
+        <p id="dcPatientName"></p>
       </div>
-      <div style="flex:1;overflow-y:auto;background:var(--bg);padding:16px;">
-        <!-- Summary (derived) -->
-        <div id="dcSummary" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px;"></div>
-        <!-- Legend -->
-        <div id="dcLegend" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px;"></div>
-        <!-- View toggle (يظهر على الشاشات الكبيرة فقط — الموبايل قوس دائماً) -->
-        <div id="dcViewToggleWrap" style="display:flex;justify-content:center;margin-bottom:12px;">
-          <div class="sched-toggle">
-            <button id="dcViewBtnArch" onclick="dcSetView('arch')">🦷 قوس</button>
-            <button id="dcViewBtnRows" onclick="dcSetView('rows')">صفوف</button>
-          </div>
+      <div id="dcViewToggleWrap" class="dc-head-toggle">
+        <div class="sched-toggle">
+          <button id="dcViewBtnArch" onclick="dcSetView('arch')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 16c0-6 3.6-10 8-10s8 4 8 10"/></svg> قوس</button>
+          <button id="dcViewBtnRows" onclick="dcSetView('rows')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 9h18M3 15h18"/></svg> صفوف</button>
         </div>
-        <!-- Chart: صفوف -->
+      </div>
+    </div>
+    <div class="dc-page-body">
+      <div class="dc-page-main">
+        <div id="dcSummary" class="dc-card dc-summary"></div>
         <div id="dcRowsView">
-          <div class="glass-card" style="padding:14px 8px;background:var(--surface);border:1.5px solid var(--border);border-radius:16px;">
+          <div class="dc-card">
             <div class="dc-jaw-label">الفك العلوي</div>
-            <!-- العرف السريري: يمين المريض على يسار الشاشة (أول عنصر بالـ RTL يظهر يميناً = جهة يسار المريض 28) -->
+            <!-- العرف السريري: يمين المريض على يسار الشاشة -->
             <div class="dc-row-wrap"><span class="dc-side">يسار</span><div class="dc-teeth-row" id="dcUpperRow"></div><span class="dc-side">يمين</span></div>
             <div class="dc-midline">— خط الوسط —</div>
             <div class="dc-row-wrap"><span class="dc-side">يسار</span><div class="dc-teeth-row" id="dcLowerRow"></div><span class="dc-side">يمين</span></div>
             <div class="dc-jaw-label">الفك السفلي</div>
           </div>
         </div>
-        <!-- Chart: قوس (Odontogram بيضوي) -->
         <div id="dcArchView" class="hidden">
-          <div class="glass-card" style="padding:14px 6px;background:var(--surface);border:1.5px solid var(--border);border-radius:16px;">
+          <div class="dc-card">
             <div class="dc-jaw-label">الفك العلوي</div>
             <div class="dc-arch" id="dcArch"></div>
             <div class="dc-jaw-label">الفك السفلي</div>
           </div>
         </div>
-        <!-- Events log -->
-        <div class="glass-card" style="margin-top:14px;padding:14px 16px;background:var(--surface);border:1.5px solid var(--border);border-radius:16px;">
-          <h4 style="font-weight:800;font-size:.88rem;color:var(--primary);margin:0 0 10px;"><i class="fas fa-clock-rotate-left" style="margin-left:6px;"></i>سجل الأحداث <span id="dcEventsCount" style="font-size:.72rem;color:var(--text-muted);font-weight:600;"></span></h4>
-          <div id="dcEventsList" style="display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;"></div>
-        </div>
       </div>
+      <aside class="dc-page-side">
+        <div class="dc-card">
+          <h4 class="dc-card-title"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.29-.28-.44-.65-.44-1.12a1.64 1.64 0 0 1 1.67-1.67h1.99c3.05 0 5.55-2.5 5.55-5.55C21.97 6.01 17.46 2 12 2z"/></svg> دليل الألوان</h4>
+          <div id="dcLegend" class="dc-legend-wrap"></div>
+        </div>
+        <div class="dc-card">
+          <h4 class="dc-card-title"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg> سجل الأحداث <span id="dcEventsCount" class="dc-count"></span></h4>
+          <div id="dcEventsList" class="dc-events-list"></div>
+        </div>
+      </aside>
     </div>
   </div>
 
-  <!-- 🦷 محرر السن — نموذج الأحداث -->
   <div id="toothEditModal" class="hidden fixed inset-0 z-[200] modal-overlay" onclick="if(event.target===this)closeToothEditor()">
     <div class="modal-content" style="max-width:560px;width:94%;max-height:93vh;display:flex;flex-direction:column;overflow:hidden;border-radius:20px;">
-      <div style="display:flex;align-items:center;gap:12px;padding:14px 20px;background:linear-gradient(135deg,#0ea5e9,#0369a1);color:#fff;flex-shrink:0;">
-        <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">🦷</div>
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 20px;background:linear-gradient(135deg,var(--primary-5),var(--primary-7));color:#fff;flex-shrink:0;">
+        <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.5c-1.6-1.8-4.1-2.3-6-1.1C4.1 5.6 3.5 7.9 4.2 9.9c.8 2.1 1.2 4.3 1.4 6.5.15 1.6.4 3.2 1.2 4.6.4.75 1.5.8 2 .1.8-1.2 1.1-2.7 1.5-4.1.3-1.1 1.9-1.1 2.2 0 .4 1.4.7 2.9 1.5 4.1.5.7 1.6.65 2-.1.8-1.4 1.05-3 1.2-4.6.2-2.2.6-4.4 1.4-6.5.7-2 .1-4.3-1.8-5.5-1.9-1.2-4.4-.7-6 1.1z"/></svg></div>
         <div style="flex:1;min-width:0;">
           <h3 id="teTitle" style="font-weight:900;font-size:1.02rem;">السن —</h3>
           <p id="teSub" style="font-size:.72rem;opacity:.85;margin-top:1px;"></p>
@@ -1397,16 +1396,16 @@
 
         <!-- تسجيل حدث جديد -->
         <div class="te-card">
-          <div class="te-card-title"><i class="fas fa-plus-circle" style="color:#0ea5e9;"></i> تسجيل حدث جديد</div>
-          <div class="te-group-lb">🔍 موجودات</div>
+          <div class="te-card-title"><i class="fas fa-plus-circle" style="color:var(--primary);"></i> تسجيل حدث جديد</div>
+          <div class="te-group-lb"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg> موجودات</div>
           <div class="te-events-grid" id="teEventsFindings"></div>
-          <div class="te-group-lb" style="margin-top:10px;">🛠️ معالجات</div>
+          <div class="te-group-lb" style="margin-top:10px;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> معالجات</div>
           <div class="te-events-grid" id="teEventsTreatments"></div>
         </div>
 
         <!-- السطوح -->
         <div class="te-card" id="teSurfaceCard">
-          <div class="te-card-title"><i class="fas fa-bullseye" style="color:#0ea5e9;"></i> السطوح المصابة <span style="font-weight:600;font-size:.7rem;color:var(--text-muted);">— اضغط على السطح مباشرة</span></div>
+          <div class="te-card-title"><i class="fas fa-bullseye" style="color:var(--primary);"></i> السطوح المصابة <span style="font-weight:600;font-size:.7rem;color:var(--text-muted);">— اضغط على السطح مباشرة</span></div>
           <div style="display:flex;justify-content:center;"><div id="teBigTooth" style="width:190px;"></div></div>
           <div id="teSurfaceHint" style="text-align:center;font-size:.7rem;color:var(--text-muted);margin-top:2px;">O سطح المضغ · M أنسي · D وحشي · B شدقي · L لساني</div>
         </div>
@@ -1415,7 +1414,7 @@
         <div class="te-card">
           <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
             <div style="display:flex;align-items:center;gap:7px;">
-              <span style="font-size:.76rem;font-weight:800;color:var(--text-secondary);"><i class="far fa-calendar" style="color:#0ea5e9;"></i> تاريخ الحدث</span>
+              <span style="font-size:.76rem;font-weight:800;color:var(--text-secondary);"><i class="far fa-calendar" style="color:var(--primary);"></i> تاريخ الحدث</span>
               <input type="date" id="teDate" style="padding:7px 10px;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;color:var(--text-primary);font-family:inherit;font-size:.82rem;">
             </div>
             <input type="text" id="teNote" style="flex:1;min-width:170px;padding:8px 12px;border:1.5px dashed var(--border);border-radius:10px;background:var(--bg);font-family:inherit;font-size:.82rem;color:var(--text-primary);outline:none;" placeholder="ملاحظة (اختياري)...">
@@ -1425,7 +1424,7 @@
         <!-- Timeline -->
         <div class="te-card">
           <div class="te-card-title" style="justify-content:space-between;">
-            <span style="display:flex;align-items:center;gap:6px;"><i class="fas fa-clock-rotate-left" style="color:#0ea5e9;"></i> الخط الزمني لهذا السن <span id="teTlCount" style="font-weight:600;font-size:.7rem;color:var(--text-muted);"></span></span>
+            <span style="display:flex;align-items:center;gap:6px;"><i class="fas fa-clock-rotate-left" style="color:var(--primary);"></i> الخط الزمني لهذا السن <span id="teTlCount" style="font-weight:600;font-size:.7rem;color:var(--text-muted);"></span></span>
             <button onclick="dcClearToothEvents()" style="border:1.5px solid #fecaca;background:#fef2f2;color:#dc2626;border-radius:8px;padding:4px 10px;font-size:.68rem;font-weight:800;cursor:pointer;font-family:inherit;"><i class="fas fa-broom" style="font-size:.6rem;"></i> مسح الكل</button>
           </div>
           <div id="teHistory" class="dc-tl"></div>
@@ -1434,7 +1433,7 @@
       </div>
       <div style="padding:13px 20px;border-top:1.5px solid var(--border);background:var(--surface);flex-shrink:0;display:flex;gap:10px;">
         <button onclick="closeToothEditor()" class="btn-secondary" style="flex:1;justify-content:center;">إغلاق</button>
-        <button onclick="saveToothEdit()" class="btn-primary" style="flex:2;justify-content:center;padding:12px;background:linear-gradient(135deg,#0ea5e9,#0369a1);box-shadow:0 4px 14px rgba(14,165,233,.35);font-weight:800;"><i class="fas fa-check"></i> تسجيل الحدث</button>
+        <button onclick="saveToothEdit()" class="btn-primary" style="flex:2;justify-content:center;padding:12px;background:linear-gradient(135deg,var(--primary-5),var(--primary-7));box-shadow:0 4px 14px rgba(13,148,136,.35);font-weight:800;"><i class="fas fa-check"></i> تسجيل الحدث</button>
       </div>
     </div>
   </div>
