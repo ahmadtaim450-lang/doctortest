@@ -7,14 +7,14 @@
 /* (1) إعدادات مشروع Firebase
    من: Firebase Console → ⚙️ Project settings → Your apps → Web app → SDK config */
 window.FIREBASE_CONFIG = {
-    apiKey: "AIzaSyBOiLLRqSykhwzYrrFrdRO2mzWTYDU2W1M",
-  authDomain: "savedatatest-4dc4c.firebaseapp.com",
-  databaseURL: "https://savedatatest-4dc4c-default-rtdb.firebaseio.com",
-  projectId: "savedatatest-4dc4c",
-  storageBucket: "savedatatest-4dc4c.firebasestorage.app",
-  messagingSenderId: "64405748598",
-  appId: "1:64405748598:web:a0c2282d07d67c63a41857"
-};
+     apiKey: "AIzaSyDeTJjhdBCpsh5CcSpE5Hrtb-_WkiLu3fo",
+    authDomain: "docbook-86d2a.firebaseapp.com",
+    databaseURL: "https://docbook-86d2a-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "docbook-86d2a",
+    storageBucket: "docbook-86d2a.firebasestorage.app",
+    messagingSenderId: "705531150196",
+    appId: "1:705531150196:web:e0763445d60fe255acf621"
+  };
 
 
 /* (2) حسابات جوجل للموظفين — نفس هذه الإيميلات يجب أن تُوضع في قواعد Firestore */
