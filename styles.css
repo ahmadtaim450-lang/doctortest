@@ -2025,7 +2025,96 @@
   .dc-head-ic{width:38px;height:38px;}
   .dc-card{padding:11px;border-radius:14px;}
   .dc-summary{padding:9px;gap:6px;}
-  /* محرر السن كورقة سفلية */
-  #toothEditModal{align-items:flex-end !important;padding:0 !important;}
-  #toothEditModal .modal-content{border-radius:22px 22px 0 0 !important;max-height:94vh !important;width:100% !important;max-width:100% !important;}
+  /* محرر السن ملء الشاشة على الموبايل */
+  #toothEditModal{align-items:stretch !important;padding:0 !important;}
+  #toothEditModal .modal-content{border-radius:0 !important;max-height:100dvh !important;height:100dvh !important;width:100% !important;max-width:100% !important;}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🦷 Premium Dental UI — Design System (Medical SaaS)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── محرر السن: توسيط ديسكتوب + هيدر/فوتر ثابت ── */
+#toothEditModal:not(.hidden){display:flex;align-items:center;justify-content:center;padding:24px;}
+#toothEditModal .modal-content{box-shadow:0 30px 70px rgba(15,23,42,.32);border:1px solid var(--border);}
+#toothEditModal .modal-content > div:first-child{position:sticky;top:0;z-index:3;}
+
+/* أزرار الأحداث (موجودات/معالجات) — بطاقات Premium */
+.te-event-btn{border:1.5px solid var(--border);background:var(--surface);border-radius:13px;padding:10px 11px;transition:border-color .18s,background .18s,transform .12s,box-shadow .18s;}
+.te-event-btn:hover{border-color:var(--border-strong);transform:translateY(-1.5px);box-shadow:0 4px 12px rgba(15,23,42,.08);}
+.te-event-btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px;}
+.te-event-btn:active{transform:scale(.97);}
+.te-event-btn .te-check{background:var(--primary);box-shadow:0 2px 6px rgba(13,148,136,.45);}
+.te-event-btn.sel{border-width:2px;box-shadow:0 4px 14px rgba(15,23,42,.1);}
+
+/* ── نظام النوافذ المخصص (Modal) — منتقي الزيارة + التأكيد ── */
+.dc-modal{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s;}
+.dc-modal.show{opacity:1;visibility:visible;}
+.dc-modal-card{background:var(--surface);border:1px solid var(--border);border-radius:22px;box-shadow:0 28px 64px rgba(15,23,42,.3);width:100%;max-width:440px;transform:translateY(14px) scale(.96);opacity:0;transition:transform .28s cubic-bezier(.34,1.4,.5,1),opacity .2s;overflow:hidden;}
+.dc-modal.show .dc-modal-card{transform:translateY(0) scale(1);opacity:1;}
+@media(prefers-reduced-motion:reduce){.dc-modal,.dc-modal-card{transition:opacity .12s;}.dc-modal-card{transform:none;}}
+
+.dc-modal-head{display:flex;align-items:center;gap:12px;padding:20px 20px 8px;}
+.dc-modal-head-ic{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:linear-gradient(135deg,var(--primary-5),var(--primary-7));color:#fff;box-shadow:0 5px 14px rgba(13,148,136,.32);}
+.dc-modal-head-txt{flex:1;min-width:0;}
+.dc-modal-head-txt h3{font-size:1.08rem;font-weight:800;color:var(--text-primary);margin:0;letter-spacing:-.2px;}
+.dc-modal-head-txt p{font-size:.77rem;color:var(--text-muted);margin:3px 0 0;font-weight:600;}
+.dc-modal-x{width:34px;height:34px;border-radius:10px;border:none;background:var(--bg);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,color .15s;align-self:flex-start;}
+.dc-modal-x:hover{background:#fef2f2;color:#dc2626;}
+.dc-modal-x:focus-visible{outline:2px solid var(--primary);outline-offset:2px;}
+
+/* خيارات نوع الزيارة */
+.vt-options{display:flex;flex-direction:column;gap:10px;padding:10px 20px 4px;}
+.vt-opt{display:flex;align-items:center;gap:13px;width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:15px;background:var(--surface);cursor:pointer;font-family:inherit;text-align:right;position:relative;transition:border-color .18s,background .18s,transform .12s,box-shadow .18s;}
+.vt-opt:hover{border-color:var(--vt);background:var(--vtbg);transform:translateY(-1px);}
+.vt-opt:focus-visible{outline:2px solid var(--vt);outline-offset:2px;}
+.vt-opt.sel{border-color:var(--vt);background:var(--vtbg);box-shadow:0 8px 20px -8px var(--vt);}
+.vt-opt-ic{width:46px;height:46px;border-radius:13px;background:var(--surface);color:var(--vt);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid var(--vt);transition:background .18s;}
+.vt-opt.sel .vt-opt-ic,.vt-opt:hover .vt-opt-ic{background:#fff;}
+.vt-opt-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.vt-opt-label{font-size:.96rem;font-weight:800;color:var(--text-primary);}
+.vt-opt-desc{font-size:.75rem;color:var(--text-muted);font-weight:600;}
+.vt-opt-check{width:26px;height:26px;border-radius:50%;background:var(--vt);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:0;transform:scale(.4);transition:opacity .18s,transform .24s cubic-bezier(.34,1.56,.64,1);}
+.vt-opt.sel .vt-opt-check{opacity:1;transform:scale(1);}
+
+.dc-modal-foot{display:flex;gap:10px;padding:16px 20px 20px;}
+.dc-btn{padding:12px 18px;border-radius:13px;font-family:inherit;font-weight:800;font-size:.9rem;cursor:pointer;border:none;transition:background .15s,transform .12s,box-shadow .15s,opacity .15s,filter .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px;}
+.dc-btn:active{transform:scale(.97);}
+.dc-btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px;}
+.dc-btn-ghost{background:var(--bg);color:var(--text-secondary);border:1.5px solid var(--border);}
+.dc-btn-ghost:hover{background:var(--surface);border-color:var(--border-strong);}
+.dc-modal-foot .dc-btn-primary{flex:1;}
+.dc-btn-primary{background:linear-gradient(135deg,var(--primary-5),var(--primary-7));color:#fff;box-shadow:0 5px 16px rgba(13,148,136,.34);}
+.dc-btn-primary:hover:not(:disabled){filter:brightness(1.06);transform:translateY(-1px);}
+.dc-btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;filter:grayscale(.3);}
+
+/* نافذة تأكيد الحذف */
+.dc-cf-card{max-width:400px;text-align:center;padding:28px 24px 22px;}
+.dc-cf-icon{width:62px;height:62px;border-radius:50%;background:#fef2f2;color:#dc2626;display:flex;align-items:center;justify-content:center;margin:0 auto 15px;box-shadow:0 0 0 7px rgba(220,38,38,.07);}
+.dc-cf-card h3{font-size:1.14rem;font-weight:800;color:var(--text-primary);margin:0 0 8px;letter-spacing:-.2px;}
+.dc-cf-card p{font-size:.87rem;color:var(--text-secondary);line-height:1.65;margin:0 0 22px;}
+.dc-cf-actions{display:flex;gap:10px;}
+.dc-cf-actions .dc-btn-ghost{flex:1;}
+.dc-cf-btn{flex:1;padding:12px;border-radius:13px;font-family:inherit;font-weight:800;font-size:.9rem;cursor:pointer;border:none;transition:background .15s,transform .12s,box-shadow .15s;}
+.dc-cf-btn:active{transform:scale(.97);}
+.dc-cf-btn:focus-visible{outline:2px solid currentColor;outline-offset:2px;}
+.dc-cf-danger{background:#dc2626;color:#fff;box-shadow:0 5px 16px rgba(220,38,38,.36);}
+.dc-cf-danger:hover{background:#b91c1c;}
+.dc-cf-primary{background:linear-gradient(135deg,var(--primary-5),var(--primary-7));color:#fff;box-shadow:0 5px 16px rgba(13,148,136,.32);}
+
+/* شارة نوع الزيارة (قائمة الزيارات) */
+.vt-badge{display:inline-flex;align-items:center;font-size:.66rem;font-weight:800;color:var(--vt);background:var(--vtbg);border:1px solid var(--vt);border-radius:999px;padding:2px 9px;line-height:1.5;white-space:nowrap;}
+
+/* دليل الألوان المجمّع */
+.dc-legend-wrap{display:flex;flex-direction:column;gap:13px;}
+.dc-legend-group{display:flex;flex-direction:column;gap:8px;}
+.dc-legend-gt{font-size:.66rem;font-weight:800;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;padding-right:2px;}
+.dc-legend-row{display:flex;flex-wrap:wrap;gap:6px;}
+
+/* موبايل: النوافذ المخصصة تلتصق بالأسفل كـ Sheet */
+@media(max-width:560px){
+  .dc-modal{align-items:flex-end;padding:0;}
+  .dc-modal-card{max-width:100%;border-radius:22px 22px 0 0;transform:translateY(100%);}
+  .dc-modal.show .dc-modal-card{transform:translateY(0);}
+  .dc-cf-card{border-radius:22px 22px 0 0;padding-bottom:26px;}
 }

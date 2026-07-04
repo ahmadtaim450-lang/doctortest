@@ -1438,6 +1438,35 @@
     </div>
   </div>
 
+  <!-- 🩺 منتقي نوع الزيارة -->
+  <div id="visitTypeModal" class="dc-modal" role="dialog" aria-modal="true" aria-labelledby="vtHeading" onclick="if(event.target===this)closeVisitTypePicker()">
+    <div class="dc-modal-card vt-card" role="document">
+      <div class="dc-modal-head">
+        <div class="dc-modal-head-ic vt-head-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4"/></svg></div>
+        <div class="dc-modal-head-txt"><h3 id="vtHeading">نوع الزيارة الجديدة</h3><p>اختر نوع الزيارة لبدء التسجيل</p></div>
+        <button class="dc-modal-x" onclick="closeVisitTypePicker()" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="vt-options" id="vtOptions" role="radiogroup" aria-label="نوع الزيارة"></div>
+      <div class="dc-modal-foot">
+        <button type="button" class="dc-btn dc-btn-ghost" onclick="closeVisitTypePicker()">إلغاء</button>
+        <button type="button" class="dc-btn dc-btn-primary" id="vtConfirm" onclick="_vtConfirm()" disabled>متابعة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⚠️ تأكيد حذف حالة سن -->
+  <div id="dcConfirmModal" class="dc-modal" role="alertdialog" aria-modal="true" aria-labelledby="dcConfirmTitle" aria-describedby="dcConfirmMsg" onclick="if(event.target===this)_dcCfClose(false)">
+    <div class="dc-modal-card dc-cf-card" role="document">
+      <div class="dc-cf-icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+      <h3 id="dcConfirmTitle">تأكيد الحذف</h3>
+      <p id="dcConfirmMsg"></p>
+      <div class="dc-cf-actions">
+        <button type="button" class="dc-btn dc-btn-ghost" onclick="_dcCfClose(false)">إلغاء</button>
+        <button type="button" class="dc-cf-btn dc-cf-danger" id="dcConfirmOk" onclick="_dcCfClose(true)">حذف</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ========== DESKTOP FAB SPEED DIAL ========== -->
   <!-- Pills منفصلة بـ fixed -->
   <div id="docDesktopPills">

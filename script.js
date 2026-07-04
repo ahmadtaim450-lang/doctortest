@@ -1508,6 +1508,24 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       if (t.indexOf('كشف') !== -1 || t.indexOf('جديد') !== -1)     return { bg:'#f5f3ff', bd:'#a78bfa', tx:'#6d28d9' };
       return { bg:'#f8fafc', bd:'#cbd5e1', tx:'#475569' };
     }
+    // ===== نظام أنواع الزيارات (Design System) =====
+    var VT_ICON = {
+      'كشف جديد': '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></svg>',
+      'مراجعة':   '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg>',
+      'تحاليل':   '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2v17.5a2.5 2.5 0 0 1-5 0V2"/><path d="M8.5 2h7"/><path d="M14.5 15h-5"/></svg>'
+    };
+    var VISIT_TYPES = {
+      'كشف جديد': { label:'كشف جديد', desc:'زيارة أولى وتشخيص',      color:'#7c3aed', bg:'#f5f3ff', bd:'#a78bfa', tx:'#6d28d9', icon: VT_ICON['كشف جديد'] },
+      'مراجعة':   { label:'مراجعة',   desc:'متابعة حالة سابقة',      color:'#d97706', bg:'#fffbeb', bd:'#fbbf24', tx:'#b45309', icon: VT_ICON['مراجعة'] },
+      'تحاليل':   { label:'تحاليل',   desc:'طلب تحاليل أو أشعة',     color:'#2563eb', bg:'#eff6ff', bd:'#60a5fa', tx:'#1d4ed8', icon: VT_ICON['تحاليل'] }
+    };
+    function visitTypeColor(v) {
+      var t = (v && (v.visitType || v.VisitType)) || '';
+      if (t.indexOf('تحاليل') !== -1 || t.indexOf('تحليل') !== -1) return VISIT_TYPES['تحاليل'];
+      if (t.indexOf('مراجعة') !== -1)                              return VISIT_TYPES['مراجعة'];
+      if (t.indexOf('كشف') !== -1 || t.indexOf('جديد') !== -1)     return VISIT_TYPES['كشف جديد'];
+      return { color:'#94a3b8', bg:'#f8fafc', bd:'#cbd5e1', tx:'#475569', label: t || 'زيارة' };
+    }
     window.setScheduleView = function(v) {
       scheduleView = v;
       document.getElementById('schedDayBtn').classList.toggle('active', v === 'day');
@@ -4038,13 +4056,13 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       document.getElementById('chartVisitsCount').textContent = '(' + visits.length + ')';
       if (!visits.length) { box.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:.85rem;"><i class="far fa-folder-open" style="font-size:1.6rem;display:block;margin-bottom:8px;opacity:.4;"></i>لا توجد زيارات بعد</div>'; return; }
       box.innerHTML = visits.map(function(o) {
-        var v = o.v, i = o.i, c = schedStatusColor(v);
+        var v = o.v, i = o.i, c = visitTypeColor(v);
         var hasLab = !!(v.labTest && v.labTest.trim());
         var hasImg = !!(v.imagingTest && v.imagingTest.trim());
         return '<div class="chart-visit" style="border:1.5px solid var(--border);border-right:4px solid ' + c.bd + ';border-radius:12px;overflow:hidden;background:var(--surface);">'
           + '<div onclick="var b=this.parentNode.querySelector(\'.chart-visit-body\');var o=b.style.display===\'none\';b.style.display=o?\'block\':\'none\';this.querySelector(\'.chart-visit-caret\').style.transform=o?\'rotate(180deg)\':\'\';" oncontextmenu="event.preventDefault();openAddNoteModal(\'' + pid + '\',' + i + ');return false;" title="كليك يمين: فتح التعديل" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;cursor:pointer;">'
             + '<div style="min-width:0;"><div style="font-weight:800;font-size:.88rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml((function(){ var c = (v.complaints || []).slice(); if (v.complaintOther && v.complaintOther.trim()) c.push(v.complaintOther.trim()); return c.length ? c.join(' + ') : (v.visitType || 'زيارة'); })()) + '</div>'
-            + '<div style="font-size:.74rem;color:var(--text-muted);margin-top:2px;"><i class="far fa-calendar" style="font-size:.68rem;"></i> ' + formatDateAr(v.date) + ' · ' + slotTimeOf(v) + '</div></div>'
+            + '<div style="font-size:.74rem;color:var(--text-muted);margin-top:3px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;"><span class="vt-badge" style="--vt:' + c.color + ';--vtbg:' + c.bg + ';">' + escapeHtml(c.label) + '</span><span><i class="far fa-calendar" style="font-size:.68rem;"></i> ' + formatDateAr(v.date) + ' · ' + slotTimeOf(v) + '</span></div></div>'
             + '<i class="fas fa-chevron-down chart-visit-caret" style="color:var(--text-muted);transition:transform .2s;flex-shrink:0;"></i>'
           + '</div>'
           + '<div class="chart-visit-body" style="display:none;padding:0 13px 13px;border-top:1px dashed var(--border);">'
@@ -4081,14 +4099,45 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
     }
 
     // ===== إضافة زيارة جديدة يدوياً =====
+    // ===== إضافة زيارة: يجب اختيار النوع أولاً =====
+    var _vtPid = null, _vtSel = null;
     window.addNewVisit = function(pid) {
       var p = allPatients[pid]; if (!p) return;
+      openVisitTypePicker(pid);
+    };
+    window.openVisitTypePicker = function(pid) {
+      _vtPid = pid; _vtSel = null;
+      var m = document.getElementById('visitTypeModal'); if (!m) return;
+      var box = document.getElementById('vtOptions');
+      box.innerHTML = Object.keys(VISIT_TYPES).map(function(k) {
+        var t = VISIT_TYPES[k];
+        return '<button type="button" class="vt-opt" role="radio" aria-checked="false" data-type="' + k + '" onclick="_vtSelect(\'' + k + '\')" style="--vt:' + t.color + ';--vtbg:' + t.bg + ';">'
+          + '<span class="vt-opt-ic">' + t.icon + '</span>'
+          + '<span class="vt-opt-txt"><span class="vt-opt-label">' + t.label + '</span><span class="vt-opt-desc">' + t.desc + '</span></span>'
+          + '<span class="vt-opt-check"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>'
+          + '</button>';
+      }).join('');
+      var ok = document.getElementById('vtConfirm'); ok.disabled = true;
+      m.classList.add('show');
+      setTimeout(function(){ var f = box.querySelector('.vt-opt'); if (f) f.focus(); }, 60);
+    };
+    window._vtSelect = function(k) {
+      _vtSel = k;
+      document.querySelectorAll('.vt-opt').forEach(function(b) { var on = b.dataset.type === k; b.classList.toggle('sel', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); });
+      document.getElementById('vtConfirm').disabled = false;
+    };
+    window.closeVisitTypePicker = function() { var m = document.getElementById('visitTypeModal'); if (m) m.classList.remove('show'); _vtPid = null; _vtSel = null; };
+    window._vtConfirm = function() {
+      if (!_vtSel) { showToast('اختر نوع الزيارة أولاً', 'error'); return; }
+      var pid = _vtPid, p = allPatients[pid]; if (!p) { closeVisitTypePicker(); return; }
       if (!p.appointments) p.appointments = [];
       var now = new Date(); var hh = String(now.getHours()).padStart(2, '0'); var mm = String(now.getMinutes()).padStart(2, '0');
-      p.appointments.push({ date: todayStr, slot: hh + ':' + mm, visitType: 'كشف جديد', diagnosis: '', prescription: '', labTest: '', noteUpdatedAt: Date.now(), source: 'chart' });
+      p.appointments.push({ date: todayStr, slot: hh + ':' + mm, visitType: _vtSel, diagnosis: '', prescription: '', labTest: '', noteUpdatedAt: Date.now(), source: 'chart' });
       p.totalVisits = (p.totalVisits || 0) + 1;
       window._fb.setDoc(window._fb.docRef('patients', pid), p, { merge: true }).catch(function(e){ console.error(e); });
-      openAddNoteModal(pid, p.appointments.length - 1);
+      var idx = p.appointments.length - 1;
+      closeVisitTypePicker();
+      openAddNoteModal(pid, idx);
     };
 
     // ===== 🦷 مخطط الأسنان v2 — نموذج الأحداث (Events) + حالة مشتقة (Derived Status) =====
@@ -4583,10 +4632,16 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       document.getElementById('dcSummary').innerHTML = html;
     }
     function dcRenderLegend() {
-      document.getElementById('dcLegend').innerHTML = Object.keys(DC_STATUS).map(function(k) {
+      function chip(k) {
+        var ev = DC_EVENTS[k]; if (!ev) return '';
         var st = DC_STATUS[k];
-        return '<span class="dc-legend-item"><span class="dc-legend-dot" style="background:' + st.bg + ';border-color:' + st.bd + ';"></span>' + st.label + '</span>';
-      }).join('');
+        var bg = st ? st.bg : (ev.color + '22');
+        var bd = st ? st.bd : ev.color;
+        return '<span class="dc-legend-item"><span class="dc-legend-dot" style="background:' + bg + ';border-color:' + bd + ';"></span>' + ev.label + '</span>';
+      }
+      document.getElementById('dcLegend').innerHTML =
+          '<div class="dc-legend-group"><span class="dc-legend-gt">موجودات</span><div class="dc-legend-row">' + DC_FINDINGS.map(chip).join('') + '</div></div>'
+        + '<div class="dc-legend-group"><span class="dc-legend-gt">معالجات</span><div class="dc-legend-row">' + DC_TREATMENTS.map(chip).join('') + '</div></div>';
     }
     function dcEventDef(e) {
       return DC_EVENTS[e.type] || (e.to && DC_STATUS[e.to] ? { label: e.action || DC_STATUS[e.to].label, color: DC_STATUS[e.to].bd, kind: 'legacy' } : { label: e.action || 'حدث', color: '#64748b', kind: 'legacy' });
@@ -4780,31 +4835,65 @@ if('serviceWorker'in navigator){window.addEventListener('load',function(){naviga
       teRenderEventGrids(); teRenderBigTooth(); teRenderCurrentChip(); teRenderHistory();
       dcRenderChart(); dcRenderEvents();
     };
+    // ── Confirm Modal مخصص (Promise + لوحة مفاتيح) ──
+    var _dcCfResolve = null, _dcCfLastFocus = null;
+    window.dcConfirm = function(opts) {
+      opts = opts || {};
+      return new Promise(function(resolve) {
+        var m = document.getElementById('dcConfirmModal');
+        if (!m) { resolve(window.confirm(opts.message || '')); return; }
+        _dcCfResolve = resolve;
+        _dcCfLastFocus = document.activeElement;
+        document.getElementById('dcConfirmTitle').textContent = opts.title || 'تأكيد الإجراء';
+        document.getElementById('dcConfirmMsg').textContent = opts.message || '';
+        var ok = document.getElementById('dcConfirmOk');
+        ok.textContent = opts.confirmLabel || 'حذف';
+        ok.className = 'dc-cf-btn ' + (opts.danger === false ? 'dc-cf-primary' : 'dc-cf-danger');
+        m.classList.add('show');
+        setTimeout(function(){ ok.focus(); }, 70);
+      });
+    };
+    window._dcCfClose = function(val) {
+      var m = document.getElementById('dcConfirmModal'); if (m) m.classList.remove('show');
+      if (_dcCfResolve) { _dcCfResolve(val); _dcCfResolve = null; }
+      if (_dcCfLastFocus && _dcCfLastFocus.focus) { try { _dcCfLastFocus.focus(); } catch (e) {} }
+    };
+    document.addEventListener('keydown', function(e) {
+      var m = document.getElementById('dcConfirmModal');
+      if (!m || !m.classList.contains('show')) return;
+      if (e.key === 'Escape') { e.preventDefault(); _dcCfClose(false); }
+      else if (e.key === 'Enter') { e.preventDefault(); _dcCfClose(true); }
+    });
     window.dcDeleteEvent = function(ts) {
       var p = allPatients[dcCurrentPid]; if (!p) return;
       var ev = (p.dentalEvents || []).find(function(e){ return e.ts === ts; });
       if (!ev) return;
       var def = dcEventDef(ev);
-      if (!confirm('حذف الحدث "' + def.label + '" من السن ' + ev.tooth + '؟\nسيُعاد حساب لون السن تلقائياً.')) return;
-      p.dentalEvents = (p.dentalEvents || []).filter(function(e){ return e.ts !== ts; });
-      dcRecomputeTooth(p, ev.tooth);
-      dcPersist(p, 'تم حذف الحدث — أُعيد حساب حالة السن ' + ev.tooth);
-      dcRenderChart(); dcRenderEvents();
-      if (teCurrentTooth != null && !document.getElementById('toothEditModal').classList.contains('hidden')) {
-        teRenderBigTooth(); teRenderCurrentChip(); teRenderHistory();
-      }
+      dcConfirm({ title: 'حذف حالة السن', message: 'سيتم حذف "' + def.label + '" من السن ' + ev.tooth + '، وإعادة حساب حالة السن تلقائياً. لا يمكن التراجع.', confirmLabel: 'حذف الحدث', danger: true }).then(function(ok) {
+        if (!ok) return;
+        p.dentalEvents = (p.dentalEvents || []).filter(function(e){ return e.ts !== ts; });
+        dcRecomputeTooth(p, ev.tooth);
+        dcPersist(p, 'تم حذف الحدث — أُعيد حساب حالة السن ' + ev.tooth);
+        dcRenderChart(); dcRenderEvents();
+        if (teCurrentTooth != null && !document.getElementById('toothEditModal').classList.contains('hidden')) {
+          teRenderBigTooth(); teRenderCurrentChip(); teRenderHistory();
+        }
+      });
     };
     // مسح كل أحداث السن الحالي — يعيده سليماً
     window.dcClearToothEvents = function() {
       var p = allPatients[dcCurrentPid]; if (!p || teCurrentTooth == null) return;
       var evs = dcToothEvents(p, teCurrentTooth);
       if (!evs.length) { showToast('لا توجد أحداث لهذا السن', 'info'); return; }
-      if (!confirm('مسح كل أحداث السن ' + teCurrentTooth + ' (' + evs.length + ' حدث)؟\nسيعود السن إلى الحالة السليمة.')) return;
-      p.dentalEvents = (p.dentalEvents || []).filter(function(e){ return String(e.tooth) !== String(teCurrentTooth); });
-      dcRecomputeTooth(p, teCurrentTooth);
-      dcPersist(p, 'السن ' + teCurrentTooth + ' عاد سليماً');
-      teRenderBigTooth(); teRenderCurrentChip(); teRenderHistory();
-      dcRenderChart(); dcRenderEvents();
+      var tooth = teCurrentTooth;
+      dcConfirm({ title: 'مسح كل أحداث السن', message: 'سيتم مسح ' + evs.length + ' حدث من السن ' + tooth + '، وإعادته إلى الحالة السليمة. لا يمكن التراجع.', confirmLabel: 'مسح الكل', danger: true }).then(function(ok) {
+        if (!ok) return;
+        p.dentalEvents = (p.dentalEvents || []).filter(function(e){ return String(e.tooth) !== String(tooth); });
+        dcRecomputeTooth(p, tooth);
+        dcPersist(p, 'السن ' + tooth + ' عاد سليماً');
+        teRenderBigTooth(); teRenderCurrentChip(); teRenderHistory();
+        dcRenderChart(); dcRenderEvents();
+      });
     };
 
     // ===== أدوات عامة للنماذج =====
